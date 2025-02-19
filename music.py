@@ -345,7 +345,6 @@ async def on_message(message: discord.Message):
         if "smortie" in message.content.lower() or "smartie" in message.content.lower() or "smorty" in message.content.lower() or "smort" in message.content.lower() or "smarty" in message.content.lower():
             await message.reply("omg me mention! i love smorties :D <:saveme:1334594782172811365><:saveme:1334594782172811365>")
         if "mik" in message.content.lower() or "milk" in message.content.lower() or "botol" in message.content.lower() or "🍼" in message.content.lower():
-            await message.add_reaction("<:mikbotol:1341846783596433408>")
             await message.reply("mik 🍼")
 
 keep_alive.keep_alive()
