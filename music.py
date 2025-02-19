@@ -26,7 +26,7 @@ elif bot_prefix == "robo":
 if codespace == "github":
     rootpath = "/workspaces"
 elif codespace == "actions":
-    rootpath = "/home/runner/work/Realanalysis"
+    rootpath = "/home/runner/work/smortie"
 else:
     rootpath = "c:/Users/ducky/Documents"
 
@@ -59,29 +59,29 @@ async def on_ready():
 @client.command(description="plays a playlist given a vc id and playlist name", brief="plays a playlist")
 async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
-    folder_path = f"{rootpath}/Realanalysis/playlists/{playlist}"
+    folder_path = f"{rootpath}/smortie/playlists/{playlist}"
     print(folder_path)
 
     # check if playlist exists
     if playlist == "master":
         await ctx.send("ok playing all songs")
-        folder_path = f"{rootpath}/Realanalysis/playlists"
+        folder_path = f"{rootpath}/smortie/playlists"
     elif playlist == "continue":
         await ctx.send("ok i continue")
-        folder_path = f"{rootpath}/Realanalysis/playlists"
+        folder_path = f"{rootpath}/smortie/playlists"
     elif playlist == None:
         await ctx.send("no playlist? ok i play queue")
-        folder_path = f"{rootpath}/Realanalysis/playlists/queue"
+        folder_path = f"{rootpath}/smortie/playlists/queue"
         playlist = "queue"
 
     elif os.path.isdir(folder_path) == False:
         await ctx.send("umm i cant find the playlist :( i play queue)")
-        folder_path = f"{rootpath}/Realanalysis/playlists/queue"
+        folder_path = f"{rootpath}/smortie/playlists/queue"
         playlist = "queue"
 
     else:
         await ctx.send(f"found ur playlist yay!!! playing {playlist}")
-        folder_path = f"{rootpath}/Realanalysis/playlists/{playlist}"
+        folder_path = f"{rootpath}/smortie/playlists/{playlist}"
     
 
     music_files = os.listdir(folder_path)
@@ -206,7 +206,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 @client.command(description="plays a file 24/7")
 async def play24(ctx, *, file=None):
     channel_id = 1132046013360779434
-    folder_path = f"{rootpath}/Realanalysis/playlists"
+    folder_path = f"{rootpath}/smortie/playlists"
     file_path = f"{folder_path}/{file}"
 
     if file.endswith(".mp3"):
@@ -231,7 +231,7 @@ async def play24(ctx, *, file=None):
 @client.command(description="plays a file once")
 async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     channel_id = channel.id
-    folder_path = f"{rootpath}/Realanalysis/playlists"
+    folder_path = f"{rootpath}/smortie/playlists"
     file_path = f"{folder_path}/{file}"
 
     if file.endswith(".mp3"):
@@ -258,12 +258,12 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
 async def playlists(ctx, *, playlist=None):
 
     if playlist == None:
-        playlists = os.listdir(f"{rootpath}/Realanalysis/playlists")
+        playlists = os.listdir(f"{rootpath}/smortie/playlists")
         playlists = '\n'.join(playlists)
         await ctx.send(f"playlists:\n{playlists}\n\nuse !smort play <playlist> to play a playlist, or !smort playlists <playlist> to list the songs in a playlist")
   
     else:
-        songs = os.listdir(f"{rootpath}/Realanalysis/playlists/{playlist}")
+        songs = os.listdir(f"{rootpath}/smortie/playlists/{playlist}")
         new_songs: str = ""
         for song in songs:
             f = music_tag.load_file(f"playlists/{playlist}/{song}")
