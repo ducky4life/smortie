@@ -11,3 +11,14 @@ i wont give documentation if you'd like to use it, just do the token stuff in mu
 supports playing 24/7, from a playlist, singular song, shuffling, master playlist with all songs in all playlists, and more that I don't remember.
 
 pls dont use. and if you do, run it in github codespaces or actions. its not safe.
+
+contact me at ducky4life@duck.com
+
+### features
+
+- 24/7 playing
+- playing a playlist (folder inside /playlists)
+- playing a single file (file inside /playlists)
+- master playlist (all files inside /playlists/*)
+- importing/displaying queue
+- continuing from where you left off
