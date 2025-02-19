@@ -1,0 +1,6 @@
+flask
+discord
+mutagen
+music_tag
+pynacl
+python-dotenv
