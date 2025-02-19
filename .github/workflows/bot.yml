@@ -34,7 +34,7 @@ jobs:
     - name: write token
       run: |
         touch .env
-        echo $TOKEN >> .env
+        echo "SMORT_TOKEN=$TOKEN" >> .env
         cat .env
 
     - name: run bot
