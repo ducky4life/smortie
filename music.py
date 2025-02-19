@@ -341,6 +341,10 @@ async def on_message(message: discord.Message):
             await message.reply("PLS HELP MI TOO PLEASE")
         if "smortie" in message.content.lower() or "smartie" in message.content.lower() or "smorty" in message.content.lower() or "smort" in message.content.lower() or "smarty" in message.content.lower():
             await message.reply("omg me mention! i love smorties :D <:saveme:1334594782172811365><:saveme:1334594782172811365>")
+        if "!smortie" in message.content.lower():
+            await message.reply("bru mik botol clon")
+        if "mik botol" in message.content.lower() or "milk botol" in message.content.lower():
+            await message.reply("mik 🍼")
 
 keep_alive.keep_alive()
 client.run(token)
