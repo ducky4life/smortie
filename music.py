@@ -332,7 +332,9 @@ async def baa(ctx, *, message=None):
 @client.event
 async def on_message(message: discord.Message):
     await client.process_commands(message)
-    if message.content.startswith('!smort'):
+    if "!smortie" in message.content.lower():
+        await message.reply("bru mik botol clon")
+    elif message.content.startswith('!smort'):
         return
     elif message.author.id != 1186326404267266059 and message.author.id != 839794863591260182:
         if "baa" in message.content.lower():
@@ -341,8 +343,6 @@ async def on_message(message: discord.Message):
             await message.reply("PLS HELP MI TOO PLEASE")
         if "smortie" in message.content.lower() or "smartie" in message.content.lower() or "smorty" in message.content.lower() or "smort" in message.content.lower() or "smarty" in message.content.lower():
             await message.reply("omg me mention! i love smorties :D <:saveme:1334594782172811365><:saveme:1334594782172811365>")
-        if "!smortie" in message.content.lower():
-            await message.reply("bru mik botol clon")
         if "mik botol" in message.content.lower() or "milk botol" in message.content.lower():
             await message.reply("mik 🍼")
 
