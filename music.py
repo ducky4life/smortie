@@ -330,11 +330,11 @@ async def baa(ctx, *, message=None):
     await ctx.send(message)
 
 @client.event
-async def on_message(ctx, message: discord.Message):
+async def on_message(message: discord.Message):
     await client.process_commands(message)
     if "!smortie" in message.content.lower():
-        await asyncio.sleep(time)
-        await ctx.send("bru mik botol clon")
+        await asyncio.sleep(2)
+        await messagw.reply("bru mik botol clon")
     elif message.content.startswith('!smort'):
         return
     elif message.author.id != 1186326404267266059 and message.author.id != 839794863591260182:
