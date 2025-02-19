@@ -9,6 +9,9 @@ on:
 permissions:
   contents: write
 
+env:
+  TOKEN : ${{ secrets.SMORT_TOKEN }}
+
 jobs:
   build:
 
@@ -27,6 +30,12 @@ jobs:
 
     - name: install ffmpeg
       run: sudo apt install ffmpeg
+
+    - name: write token
+      run: |
+        touch .env
+        echo $TOKEN >> .env
+        cat .env
 
     - name: run bot
       run: python music.py
