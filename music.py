@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 import asyncio
 import os
@@ -50,13 +51,15 @@ async def send_codeblock(ctx, msg):
 async def on_ready():
     print('Roboduck is ready')
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="ITS SHAUN THE SHEEP!"))
+    await client.tree.sync()
 
 
 
 
 # music stuffs
 
-@client.command(description="plays a playlist given a vc id and playlist name", brief="plays a playlist")
+@client.hybrid_command(description="plays a playlist given a vc id and playlist name", brief="plays a playlist")
+@app_commands.describe(playlist="wat i play", shuffle="say shuffle if yes")
 async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
     folder_path = f"{rootpath}/smortie/playlists/{playlist}"
@@ -203,8 +206,9 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
 
 
-@client.command(description="plays a file 24/7")
-async def play24(ctx, *, file=None):
+@client.hybrid_command(description="plays a file 24/7")
+@app_commands.describe(file="wat file i sing? pls include extension")
+async def play24(ctx, *, file="sheep.mp3"):
     channel_id = 1132046013360779434
     folder_path = f"{rootpath}/smortie/playlists"
     file_path = f"{folder_path}/{file}"
@@ -228,7 +232,7 @@ async def play24(ctx, *, file=None):
 
 
 
-@client.command(description="plays a file once")
+@client.hybrid_command(description="plays a file once")
 async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     channel_id = channel.id
     folder_path = f"{rootpath}/smortie/playlists"
@@ -254,7 +258,8 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
 
 
 
-@client.command(aliases=['playlist'])
+@client.hybrid_command(aliases=['playlist'])
+@app_commands.describe(playlist="wat u si")
 async def playlists(ctx, *, playlist=None):
 
     if playlist == None:
@@ -273,7 +278,7 @@ async def playlists(ctx, *, playlist=None):
 
 
 
-@client.command(aliases=['q'])
+@client.hybrid_command(aliases=['q'])
 async def queue(ctx):
     with open("queue.txt", encoding="utf-8") as queue_file:
         msg = ""
@@ -285,7 +290,8 @@ async def queue(ctx):
 
 
 
-@client.command(aliases=['import'])
+@client.hybrid_command(aliases=['import'])
+@app_commands.describe(queue="wat i nom")
 async def importqueue(ctx, *, queue=None):
     if queue == None:
         await ctx.send("no queue given")
@@ -296,19 +302,19 @@ async def importqueue(ctx, *, queue=None):
 
 
 
-@client.command()
+@client.hybrid_command()
 async def stop(ctx):
     voice_client = ctx.guild.voice_client
     await voice_client.disconnect()
     await ctx.send("bai bai")
 
-@client.command()
+@client.hybrid_command()
 async def pause(ctx):
     voice_client = ctx.guild.voice_client
     voice_client.pause()
     await ctx.send("ok i wait")
 
-@client.command()
+@client.hybrid_command()
 async def resume(ctx):
     voice_client = ctx.guild.voice_client
     voice_client.resume()
@@ -316,15 +322,15 @@ async def resume(ctx):
                                
 # non music stuff
 
-@client.command(aliases=['sheep'])
+@client.hybrid_command(aliases=['sheep'])
 async def shaun_the_sheep(ctx):
     await ctx.send("He’s Shaun the Sheep\nHe’s Shaun the Sheep\nHe even mucks about with those who cannot bleat\nKeep it in Mind,\nHe's One of a Kind\nOh life's a treat with Shaun the Sheep\nHe's Shaun the Sheep (He's Shaun the Sheep.)\nHe's Shaun the Sheep (He's Shaun the Sheep.)\nHe doesn't miss a trick or ever lose a beat (lose a beat.)\nPerhaps one day, you'll find a way to come and meet with Shaun the Sheep.\nOh, come and bleat with Shaun the Sheep! (Baaaaaaaaaaaaaaaaaaaaaaaaaa!)")
 
-@client.command()
+@client.hybrid_command()
 async def shawn_the_sheep(ctx):
     await ctx.send("dont be pretentious and use shaun_the_sheep")
 
-@client.command()
+@client.hybrid_command()
 async def baa(ctx, *, message=None):
     await ctx.message.delete()
     await ctx.send(message)
@@ -346,6 +352,13 @@ async def on_message(message: discord.Message):
             await message.reply("omg me mention! i love smorties :D <:saveme:1334594782172811365><:saveme:1334594782172811365>")
         if "mik" in message.content.lower() or "milk" in message.content.lower() or "botol" in message.content.lower() or "🍼" in message.content.lower():
             await message.reply("mik 🍼")
+
+@client.event
+async def on_command_error(ctx, error):
+    channel_id = 1131914463277240361
+    channel = client.get_channel(channel_id)
+    await channel.send(error)
+    await channel.send(error.__traceback__)
 
 keep_alive.keep_alive()
 client.run(token)
