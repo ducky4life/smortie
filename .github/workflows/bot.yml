@@ -5,7 +5,10 @@ name: mik botol
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 0 * * *'
+    - cron: '1 6 * * *'
+    - cron: '2 12 * * *'
+    - cron: '3 18 * * *'
   workflow_dispatch:
 
 permissions:
