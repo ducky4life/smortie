@@ -15,8 +15,8 @@ intents.members = True
 
 load_dotenv()
 
-bot_prefix = "robo"
-codespace = "actionss"
+bot_prefix = "smort"
+codespace = "actions"
 
 
 if bot_prefix == "smort":
