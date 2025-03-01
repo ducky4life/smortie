@@ -15,8 +15,8 @@ intents.members = True
 
 load_dotenv()
 
-bot_prefix = "smort"
-codespace = "actions"
+bot_prefix = "robo"
+codespace = "actionss"
 
 
 if bot_prefix == "smort":
@@ -258,6 +258,7 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
 
 
 
+
 @client.hybrid_command(aliases=['playlist'])
 @app_commands.describe(playlist="wat u si")
 async def playlists(ctx, *, playlist=None):
@@ -321,6 +322,119 @@ async def resume(ctx):
     await ctx.send("yay i playing again")
                                
 # non music stuff
+
+@client.hybrid_command()
+async def trigger(ctx, point=None, region=None, *, moveplusendorse="no", native=None):
+    match moveplusendorse:
+        case "no":
+            ten = f"""<@&272392896806912000>
+**__Ten Minute Warning.__**
+
+Make sure you have prepared a World Assembly nation in our jump point, https://www.nationstates.net/region=artificial_solar_system
+
+**Endorse this nation and __ALL__ the nations endorsing it: {point}**
+
+The next ping will be a five minute warning."""
+            
+            five = f"""<@&272392896806912000>
+**__Five Minute Warning__**
+**DO NOT MOVE YET - PREPARE**
+
+Our target region: {region} Have this page open.
+
+**Make sure you have endorsed this nation and all nations endorsing it: {point}**
+
+**DO NOT move until the move order is given.**
+The next ping will be a two minute warning."""
+            
+            two = f"""<@&272392896806912000>
+**__Two Minute Warning__**
+**DO NOT MOVE YET - RADIO SILENCE - DO NOT SPEAK**
+
+Our target region: {region} Have this page open.
+
+**Make sure you have endorsed this nation and all nations endorsing it: {point}**
+
+**__DO NOT MOVE YET__**
+
+The next ping will be a movement order. **Be ready to move as fast as you can.** ***You will only have a few seconds***"""
+            
+            fpm = f"""<@&272392896806912000>
+**__Two Minute Warning__**
+**DO NOT MOVE YET - RADIO SILENCE - DO NOT SPEAK**
+
+Our target region: {region} Have this page open.
+
+**Make sure you have endorsed this nation and all nations endorsing it: {point}**
+
+Our cross has moved now, **do not follow.**
+
+**__DO NOT MOVE YET__**
+
+The next ping will be a movement order. **Be ready to move as fast as you can.** ***You will only have a few seconds***"""
+            
+            go = "<@&272392896806912000> GO GO GO"
+        
+        case "m+e":
+            ten = f"""<@&272392896806912000>
+**__Ten Minute Warning.__**
+
+Make sure you have prepared a World Assembly nation in our jump point, https://www.nationstates.net/region=artificial_solar_system
+
+**Endorse this nation and __ALL__ the nations endorsing it: {point}**
+
+The next ping will be a five minute warning."""
+            
+            five = f"""<@&272392896806912000>
+**__Five Minute Warning__**
+**DO NOT MOVE YET - PREPARE**
+
+Our target region: {region} Have this page open.
+
+**Make sure you have endorsed this nation and all nations endorsing it: {point}**
+
+**After moving, we will immediately endorse {native}. ** Have this page open.
+
+ **DO NOT move until the move order is given.**
+The next ping will be a two minute warning."""
+
+            two = f"""<@&272392896806912000>
+**__Two Minute Warning__**
+**DO NOT MOVE YET - RADIO SILENCE - DO NOT SPEAK**
+
+Target region: {region} Have this page open and refresh it once now.
+
+**Make sure you have endorsed this nation and all nations endorsing it: {point}**
+
+**After moving, we will immediately endorse {native}. ** Have this page open and refresh it once now.
+
+**__DO NOT MOVE YET__**
+
+The next ping will be a movement order. **Be ready to move as fast as you can.** ***You will only have a few seconds***"""
+            
+            fpm = f"""<@&272392896806912000>
+**__Two Minute Warning__**
+**DO NOT MOVE YET - RADIO SILENCE - DO NOT SPEAK**
+
+Target region: {region} Have this page open and refresh it once now.
+
+**Make sure you have endorsed this nation and all nations endorsing it: {point}**
+
+Our cross has moved now, **do not follow.**
+
+**After moving, we will immediately endorse {native}. ** Have this page open and refresh it once now.
+
+**__DO NOT MOVE YET__**
+
+The next ping will be a movement order. **Be ready to move as fast as you can.** ***You will only have a few seconds***"""
+            
+            go = "<@&272392896806912000> GO Endo (native)"
+
+    await send_codeblock(ctx, ten)
+    await send_codeblock(ctx, five)
+    await send_codeblock(ctx, two)
+    await send_codeblock(ctx, fpm)
+    await send_codeblock(ctx, go)
 
 @client.hybrid_command(aliases=['sheep'])
 async def shaun_the_sheep(ctx):
