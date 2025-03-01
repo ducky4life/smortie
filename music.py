@@ -324,6 +324,11 @@ async def resume(ctx):
 # non music stuff
 
 @client.hybrid_command()
+@app_commands.describe(moveplusendorse="m+e if yes")
+@app_commands.choices(moveplusendorse=[
+    app_commands.Choice(name='m+e', value="m+e"),
+    app_commands.Choice(name='no', value="no")
+])
 async def trigger(ctx, point=None, region=None, *, moveplusendorse="no", native=None):
     match moveplusendorse:
         case "no":
