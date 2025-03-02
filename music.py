@@ -207,7 +207,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
 
 @client.hybrid_command(description="plays a file 24/7")
-@app_commands.describe(file="wat file i sing? pls include extension")
+@app_commands.describe(file="wat file i sing? pls include path and file extension")
 async def play24(ctx, *, file="sheep.mp3"):
     channel_id = 1132046013360779434
     folder_path = f"{rootpath}/smortie/playlists"
