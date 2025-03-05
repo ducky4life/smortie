@@ -40,6 +40,9 @@ jobs:
     - name: install ffmpeg
       run: sudo apt install ffmpeg
 
+    - name: make local folder
+      run: mkdir playlists/local
+
     - name: write token
       run: |
         touch .env
