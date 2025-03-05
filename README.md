@@ -19,6 +19,7 @@ contact me at ducky4life@duck.com
 - 24/7 playing
 - playing a playlist (folder inside /playlists)
 - playing a single file (file inside /playlists)
+- playing a local file (uploaded with command)
 - master playlist (all files inside /playlists/*)
 - importing/displaying queue
 - continuing from where you left off
