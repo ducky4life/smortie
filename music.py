@@ -21,7 +21,7 @@ codespace = "actions"
 
 if bot_prefix == "smort":
     token = os.getenv("SMORT_TOKEN")
-elif bot_prefix == "robo":
+else:
     token = os.getenv("ROBO_TOKEN")
 
 if codespace == "github":
@@ -255,6 +255,31 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     await voice_client.disconnect()
     await ctx.send("bai bai")
 
+
+
+@client.hybrid_command()
+async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attachment):
+    channel_id = channel.id
+    folder_path = f"{rootpath}/smortie/playlists/local"
+    file_path = f"{folder_path}/{file.filename}"
+    await file.save(file_path)
+
+    if file.filename.endswith(".mp3"):
+        time = MP3(f'{folder_path}/{file.filename}').info.length + 3
+    else:
+        time = MP4(f'{folder_path}/{file.filename}').info.length + 3
+
+    channel = client.get_channel(channel_id)
+    if not channel:
+        return print('Invalid voice channel ID.')
+
+    voice_client = await channel.connect()
+    await ctx.send(f"playing {file.filename} :D ill disconnect when its done")
+
+    voice_client.play(discord.FFmpegPCMAudio(file_path))
+    await asyncio.sleep(time)
+    await voice_client.disconnect()
+    await ctx.send("bai bai")
 
 
 
