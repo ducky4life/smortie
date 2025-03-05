@@ -259,9 +259,12 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
 
 @client.hybrid_command()
 async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attachment):
+    await ctx.defer()
     channel_id = channel.id
     folder_path = f"{rootpath}/smortie/playlists/local"
     file_path = f"{folder_path}/{file.filename}"
+    if not os.path.exists("playlists/local"):
+        os.makedirs("playlists/local")
     await file.save(file_path)
 
     if file.filename.endswith(".mp3"):
