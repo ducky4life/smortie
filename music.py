@@ -461,11 +461,12 @@ Our cross has moved now, **do not follow.**
 
 The next ping will be a movement order. **Be ready to move as fast as you can.** ***You will only have a few seconds***"""
             
-            go = "<@&272392896806912000> GO Endo (native)"
+            go = f"<@&272392896806912000> GO Endo {native}"
 
     await send_codeblock(ctx, ten)
     await send_codeblock(ctx, five)
     await send_codeblock(ctx, two)
+    await ctx.send("fpm 2 minute:")
     await send_codeblock(ctx, fpm)
     await send_codeblock(ctx, go)
 
