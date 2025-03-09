@@ -207,6 +207,14 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
                 await interaction.response.edit_message(content='i sing next song', view=None)
             @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
             async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+                with open("queue.txt", encoding="utf-8") as queue_file:
+                    msg = ""
+                    for row in queue_file:
+                        if row != "\n":
+                            msg += row
+                    await interaction.response.send_message(f"```{msg}```")
+            @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
+            async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 await voice_client.disconnect()
                 await interaction.response.edit_message(content='bai bai', view=None)
 
@@ -341,9 +349,8 @@ async def queue(ctx):
     with open("queue.txt", encoding="utf-8") as queue_file:
         msg = ""
         for row in queue_file:
-            temp = row
-            if temp != "\n":
-                msg += temp
+            if row != "\n":
+                msg += row
         await send_codeblock(ctx, msg)
 
 
