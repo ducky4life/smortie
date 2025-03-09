@@ -60,6 +60,10 @@ async def on_ready():
 
 @client.hybrid_command(description="plays a playlist given a vc id and playlist name", brief="plays a playlist")
 @app_commands.describe(playlist="wat i play", shuffle="say shuffle if yes")
+@app_commands.choices(shuffle=[
+    app_commands.Choice(name='shuffle', value="shuffle"),
+    app_commands.Choice(name='no', value="no")
+])
 async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
     folder_path = f"{rootpath}/smortie/playlists/{playlist}"
