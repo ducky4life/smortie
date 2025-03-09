@@ -15,8 +15,8 @@ intents.members = True
 
 load_dotenv()
 
-bot_prefix = "smorts"
-codespace = "actionss"
+bot_prefix = "smort"
+codespace = "actions"
 
 
 if bot_prefix == "smort":
@@ -60,7 +60,6 @@ async def on_ready():
     print('Roboduck is ready')
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="ITS SHAUN THE SHEEP!"))
     await client.tree.sync()
-
 
 
 
@@ -353,7 +352,7 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
 @client.hybrid_command(aliases=['playlist'])
 @app_commands.describe(playlist="wat u si")
 async def playlists(ctx, *, playlist=None):
-    
+
     if playlist == None:
         playlists = os.listdir(f"{rootpath}/smortie/playlists")
         playlists = '\n'.join(playlists)
@@ -367,6 +366,31 @@ async def playlists(ctx, *, playlist=None):
             new_songs += f"{f['title']} - {str(f['artist']).split(',')[0]} ({song.split('.')[1]})\n"
             msg = f"songs in {playlist}:\n{new_songs}"
         await send_codeblock(ctx, msg)
+
+
+
+@client.hybrid_command()
+@app_commands.choices(filter=[
+    app_commands.Choice(name='title', value="title"),
+    app_commands.Choice(name='artist', value="artist")
+])
+async def search(ctx, filter="title", query=None):
+    all_songs = ""
+    for path, subdirs, files in os.walk(f"{rootpath}/smortie/playlists"):
+        for name in files:
+            all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"{rootpath}/smortie/playlists").replace("\\", "/")
+    all_songs = all_songs.split("?")
+    all_songs.pop(-1)
+    print(all_songs)
+    song_dicts = [{"title": music_tag.load_file(f"playlists/{song}")['title'], "artist": music_tag.load_file(f"playlists/{song}")['artist'], "file_path": song} for song in all_songs]
+
+    if filter == "title":
+        songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['title']).lower()]
+    elif filter == "artist":
+        songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['artist']).lower()]
+
+    msg = "\n".join(songs)
+    await send_codeblock(ctx, msg)
 
 
 
