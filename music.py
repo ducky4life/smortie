@@ -205,7 +205,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
             await asyncio.sleep(time)
 
         class Buttons(discord.ui.View):
-            @discord.ui.button(label='pause', style=discord.ButtonStyle.success)
+            @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
             async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 voice_client.pause()
                 await interaction.response.send_message('ok i wait')
