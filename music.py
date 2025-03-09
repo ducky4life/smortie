@@ -381,7 +381,7 @@ async def search(ctx, filter="title", query=None):
             all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"{rootpath}/smortie/playlists").replace("\\", "/")
     all_songs = all_songs.split("?")
     all_songs.pop(-1)
-    print(all_songs)
+
     song_dicts = [{"title": music_tag.load_file(f"playlists/{song}")['title'], "artist": music_tag.load_file(f"playlists/{song}")['artist'], "file_path": song} for song in all_songs]
 
     if filter == "title":
