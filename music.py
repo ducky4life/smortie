@@ -209,8 +209,8 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
             async def skip(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 task.cancel()
                 await interaction.response.edit_message(content='i sing next song', view=None)
-            @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
-            async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            @discord.ui.button(label='queue', style=discord.ButtonStyle.red)
+            async def displayqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 with open("queue.txt", encoding="utf-8") as queue_file:
                     msg = ""
                     for row in queue_file:
