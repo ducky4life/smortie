@@ -191,11 +191,6 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
         async def sleep_until_song_ends(time):
             await asyncio.sleep(time)
-            voice_client.stop()
-            i = i + 1
-            if i == len(music_files):
-                await voice_client.disconnect()
-                await ctx.send("bai bai")
 
         class Buttons(discord.ui.View):
             @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
@@ -225,6 +220,11 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
         task = asyncio.create_task(sleep_until_song_ends(time))
         try:
             await task
+            voice_client.stop()
+            i = i + 1
+            if i == len(music_files):
+                await voice_client.disconnect()
+                await ctx.send("bai bai")
         except asyncio.CancelledError:
             voice_client.stop()
             i = i + 1
