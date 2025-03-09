@@ -331,8 +331,7 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
 @client.hybrid_command(aliases=['playlist'])
 @app_commands.describe(playlist="wat u si")
 async def playlists(ctx, *, playlist=None):
-    await ctx.defer()
-
+    
     if playlist == None:
         playlists = os.listdir(f"{rootpath}/smortie/playlists")
         playlists = '\n'.join(playlists)
