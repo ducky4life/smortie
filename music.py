@@ -207,7 +207,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
                 await interaction.response.edit_message(content='i sing next song', view=None)
             @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
             async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-                voice_client.stop()
+                await voice_client.disconnect()
                 await interaction.response.edit_message(content='bai bai', view=None)
 
         voice_client.play(discord.FFmpegPCMAudio(file_to_play))
