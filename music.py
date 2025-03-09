@@ -15,8 +15,8 @@ intents.members = True
 
 load_dotenv()
 
-bot_prefix = "smort"
-codespace = "actions"
+bot_prefix = "smorts"
+codespace = "actionss"
 
 
 if bot_prefix == "smort":
@@ -39,10 +39,18 @@ client = commands.Bot(
 
 async def send_codeblock(ctx, msg):
     if len(msg) > 1993:
-        first_msg = msg[:1993]
-        second_msg = msg[1993:].strip()
-        await ctx.send(f"```{first_msg}```")
-        await ctx.send(f"```{second_msg}```")
+        if len(msg) > 3993:
+            first_msg = msg[:1993]
+            second_msg = msg[1993:3993].strip()
+            third_msg = msg[3993:].strip()
+            await ctx.send(f"```{first_msg}```")
+            await ctx.send(f"```{second_msg}```")
+            await ctx.send(f"```{third_msg}```")
+        else:
+            first_msg = msg[:1993]
+            second_msg = msg[1993:].strip()
+            await ctx.send(f"```{first_msg}```")
+            await ctx.send(f"```{second_msg}```")
     else:
         await ctx.send(f"```{msg}```")
 
@@ -216,7 +224,21 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
                     for row in queue_file:
                         if row != "\n":
                             msg += row
-                    await interaction.response.send_message(f"```{msg}```")
+                    if len(msg) > 1993:
+                        if len(msg) > 3993:
+                            first_msg = msg[:1993]
+                            second_msg = msg[1993:3993].strip()
+                            third_msg = msg[3993:].strip()
+                            await interaction.response.send_message(f"```{first_msg}```")
+                            await interaction.response.send_message(f"```{second_msg}```")
+                            await interaction.response.send_message(f"```{third_msg}```")
+                        else:
+                            first_msg = msg[:1993]
+                            second_msg = msg[1993:].strip()
+                            await interaction.response.send_message(f"```{first_msg}```")
+                            await interaction.response.send_message(f"```{second_msg}```")
+                    else:
+                        await interaction.response.send_message(f"```{msg}```")
             @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
             async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 await voice_client.disconnect()
