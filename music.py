@@ -182,7 +182,6 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
             queue_list = music_files_with_playlist_path
 
 
-
         f = music_tag.load_file(file_to_load)
         title = f['title']
         if music_files[i].endswith(".mp3"):
@@ -190,18 +189,48 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
         else:
             time = MP4(full_file_path).info.length + 3
 
+        async def sleep_until_song_ends(time):
+            await asyncio.sleep(time)
+            voice_client.stop()
+            i = i + 1
+            if i == len(music_files):
+                await voice_client.disconnect()
+                await ctx.send("bai bai")
+
+        class Buttons(discord.ui.View):
+            @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
+            async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+                voice_client.pause()
+                await interaction.response.send_message('ok i wait')
+            @discord.ui.button(label='resume', style=discord.ButtonStyle.success)
+            async def resume(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+                voice_client.resume()
+                await interaction.response.send_message('yay i sing')
+            @discord.ui.button(label='skip', style=discord.ButtonStyle.secondary)
+            async def skip(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+                task.cancel()
+                await interaction.response.edit_message(content='i sing next song', view=None)
+            @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
+            async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+                voice_client.stop()
+                await interaction.response.edit_message(content='bai bai', view=None)
+
         voice_client.play(discord.FFmpegPCMAudio(file_to_play))
-        await ctx.send(f"playing {title} - {f['artist']}", silent=True)
+        await ctx.send(f"playing {title} - {f['artist']}", silent=True, view=Buttons(timeout=None))
         if i < len(music_files)-1:
             queue_list.pop(0)
         with open("queue.txt", "w", encoding="utf-8") as file:
             file.write("\n".join(queue_list))
-        await asyncio.sleep(time)
-        voice_client.stop()
-        i = i + 1
-        if i == len(music_files):
-            await voice_client.disconnect()
-            await ctx.send("bai bai")
+
+        task = asyncio.create_task(sleep_until_song_ends(time))
+        try:
+            await task
+        except asyncio.CancelledError:
+            voice_client.stop()
+            i = i + 1
+            if i == len(music_files):
+                await voice_client.disconnect()
+                await ctx.send("bai bai")
 
 
 
@@ -350,125 +379,6 @@ async def resume(ctx):
     await ctx.send("yay i playing again")
                                
 # non music stuff
-
-@client.hybrid_command()
-@app_commands.describe(moveplusendorse="m+e if yes")
-@app_commands.choices(moveplusendorse=[
-    app_commands.Choice(name='m+e', value="m+e"),
-    app_commands.Choice(name='no', value="no")
-])
-async def trigger(ctx, point=None, region=None, *, moveplusendorse="no", native=None):
-    match moveplusendorse:
-        case "no":
-            ten = f"""<@&272392896806912000>
-**__Ten Minute Warning.__**
-
-Make sure you have prepared a World Assembly nation in our jump point, https://www.nationstates.net/region=artificial_solar_system
-
-**Endorse this nation and __ALL__ the nations endorsing it: {point}**
-
-The next ping will be a five minute warning."""
-            
-            five = f"""<@&272392896806912000>
-**__Five Minute Warning__**
-**DO NOT MOVE YET - PREPARE**
-
-Our target region: {region} Have this page open.
-
-**Make sure you have endorsed this nation and all nations endorsing it: {point}**
-
-**DO NOT move until the move order is given.**
-The next ping will be a two minute warning."""
-            
-            two = f"""<@&272392896806912000>
-**__Two Minute Warning__**
-**DO NOT MOVE YET - RADIO SILENCE - DO NOT SPEAK**
-
-Our target region: {region} Have this page open.
-
-**Make sure you have endorsed this nation and all nations endorsing it: {point}**
-
-**__DO NOT MOVE YET__**
-
-The next ping will be a movement order. **Be ready to move as fast as you can.** ***You will only have a few seconds***"""
-            
-            fpm = f"""<@&272392896806912000>
-**__Two Minute Warning__**
-**DO NOT MOVE YET - RADIO SILENCE - DO NOT SPEAK**
-
-Our target region: {region} Have this page open.
-
-**Make sure you have endorsed this nation and all nations endorsing it: {point}**
-
-Our cross has moved now, **do not follow.**
-
-**__DO NOT MOVE YET__**
-
-The next ping will be a movement order. **Be ready to move as fast as you can.** ***You will only have a few seconds***"""
-            
-            go = "<@&272392896806912000> GO GO GO"
-        
-        case "m+e":
-            ten = f"""<@&272392896806912000>
-**__Ten Minute Warning.__**
-
-Make sure you have prepared a World Assembly nation in our jump point, https://www.nationstates.net/region=artificial_solar_system
-
-**Endorse this nation and __ALL__ the nations endorsing it: {point}**
-
-The next ping will be a five minute warning."""
-            
-            five = f"""<@&272392896806912000>
-**__Five Minute Warning__**
-**DO NOT MOVE YET - PREPARE**
-
-Our target region: {region} Have this page open.
-
-**Make sure you have endorsed this nation and all nations endorsing it: {point}**
-
-**After moving, we will immediately endorse {native}. ** Have this page open.
-
- **DO NOT move until the move order is given.**
-The next ping will be a two minute warning."""
-
-            two = f"""<@&272392896806912000>
-**__Two Minute Warning__**
-**DO NOT MOVE YET - RADIO SILENCE - DO NOT SPEAK**
-
-Target region: {region} Have this page open and refresh it once now.
-
-**Make sure you have endorsed this nation and all nations endorsing it: {point}**
-
-**After moving, we will immediately endorse {native}. ** Have this page open and refresh it once now.
-
-**__DO NOT MOVE YET__**
-
-The next ping will be a movement order. **Be ready to move as fast as you can.** ***You will only have a few seconds***"""
-            
-            fpm = f"""<@&272392896806912000>
-**__Two Minute Warning__**
-**DO NOT MOVE YET - RADIO SILENCE - DO NOT SPEAK**
-
-Target region: {region} Have this page open and refresh it once now.
-
-**Make sure you have endorsed this nation and all nations endorsing it: {point}**
-
-Our cross has moved now, **do not follow.**
-
-**After moving, we will immediately endorse {native}. ** Have this page open and refresh it once now.
-
-**__DO NOT MOVE YET__**
-
-The next ping will be a movement order. **Be ready to move as fast as you can.** ***You will only have a few seconds***"""
-            
-            go = f"<@&272392896806912000> GO Endo {native}"
-
-    await send_codeblock(ctx, ten)
-    await send_codeblock(ctx, five)
-    await send_codeblock(ctx, two)
-    await ctx.send("fpm 2 minute:")
-    await send_codeblock(ctx, fpm)
-    await send_codeblock(ctx, go)
 
 @client.hybrid_command(aliases=['sheep'])
 async def shaun_the_sheep(ctx):
