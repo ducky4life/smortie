@@ -197,7 +197,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
             await asyncio.sleep(time)
 
         class Buttons(discord.ui.View):
-            @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
+            @discord.ui.button(label='pause', style=discord.ButtonStyle.success)
             async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 voice_client.pause()
                 await interaction.response.send_message('ok i wait')
@@ -209,7 +209,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
             async def skip(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 task.cancel()
                 await interaction.response.edit_message(content='i sing next song', view=None)
-            @discord.ui.button(label='queue', style=discord.ButtonStyle.red)
+            @discord.ui.button(label='queue', style=discord.ButtonStyle.secondary)
             async def displayqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 with open("queue.txt", encoding="utf-8") as queue_file:
                     msg = ""
