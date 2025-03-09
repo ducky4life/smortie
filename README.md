@@ -23,3 +23,4 @@ contact me at ducky4life@duck.com
 - master playlist (all files inside /playlists/*)
 - importing/displaying queue
 - continuing from where you left off
+- searching by track name/artist name
