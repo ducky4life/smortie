@@ -40,9 +40,10 @@ jobs:
     - name: install ffmpeg
       run: sudo apt install ffmpeg
 
-    - name: write token
+    - name: write token and make queue.txt
       run: |
         touch .env
+        touch queue.txt
         echo "SMORT_TOKEN=$TOKEN" >> .env
 
     - name: run bot
