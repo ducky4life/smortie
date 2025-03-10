@@ -123,6 +123,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
                 else:
                     music_files += f'{os.path.join(path, name)}?'.removeprefix(folder_path)
         music_files = music_files.split("?")
+        music_files.pop(-1)
 
     # continue: get queue from queue.txt
     elif playlist == "continue":
