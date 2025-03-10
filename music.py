@@ -1,3 +1,4 @@
+# region setup
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -31,12 +32,19 @@ elif codespace == "actions":
 else:
     rootpath = "c:/Users/ducky/Documents"
 
-
-
 client = commands.Bot(
     command_prefix=[f"!{bot_prefix} ", f"!{bot_prefix} "],
     intents=intents)
 
+@client.event
+async def on_ready():
+    print('Roboduck is ready')
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="ITS SHAUN THE SHEEP!"))
+    await client.tree.sync()
+# endregion
+
+
+# region helper functions
 async def send_codeblock(ctx, msg):
     if len(msg) > 1993:
         if len(msg) > 3993:
@@ -55,12 +63,17 @@ async def send_codeblock(ctx, msg):
         await ctx.send(f"```{msg}```")
 
 
-@client.event
-async def on_ready():
-    print('Roboduck is ready')
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="ITS SHAUN THE SHEEP!"))
-    await client.tree.sync()
+async def get_track_duration(file, full_file_path):
+    if file.endswith(".mp3"):
+        time = MP3(full_file_path).info.length + 3
+    else:
+        time = MP4(full_file_path).info.length + 3
+    return(time)
 
+
+async def sleep_until_song_ends(time):
+    await asyncio.sleep(time)
+# endregion
 
 
 # music stuffs
@@ -74,9 +87,8 @@ async def on_ready():
 async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
     folder_path = f"{rootpath}/smortie/playlists/{playlist}"
-    print(folder_path)
 
-    # check if playlist exists
+    # region check if playlist exists
     if playlist == "master":
         await ctx.send("ok playing all songs")
         folder_path = f"{rootpath}/smortie/playlists"
@@ -89,18 +101,18 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
         playlist = "queue"
 
     elif os.path.isdir(folder_path) == False:
-        await ctx.send("umm i cant find the playlist :( i play queue)")
+        await ctx.send("umm i cant find the playlist :( (i play queue)")
         folder_path = f"{rootpath}/smortie/playlists/queue"
         playlist = "queue"
 
     else:
         await ctx.send(f"found ur playlist yay!!! playing {playlist}")
         folder_path = f"{rootpath}/smortie/playlists/{playlist}"
-    
+    # endregion
 
     music_files = os.listdir(folder_path)
 
-
+    # region special playlists
     # master: add all songs to music_files
     if playlist == "master":
         music_files = ""
@@ -116,18 +128,20 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
     elif playlist == "continue":
         with open("queue.txt", encoding="utf-8") as file:
             music_files = file.readlines()
-            music_files = [song.strip() for song in music_files]  # Strip newline characters
+            music_files = [song.strip() for song in music_files]
+    # endregion
 
 
-    # check if shuffle is enabled
+    # region check if shuffle is enabled
     if shuffle == None:
         await ctx.send("no shuffle mode, i go alphabetical")
     elif shuffle.lower() == "shuffle":
         await ctx.send("shuffle mode go brr")
         random.shuffle(music_files)
+    # endregion
 
 
-
+    # region write songs to queue
     # write all songs to queue.txt
     dupe_music_files = music_files.copy()
 
@@ -144,28 +158,23 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
             music_files_with_playlist_path = [f"/{playlist}/{song}" for song in dupe_music_files]
         
             file.write("\n".join(music_files_with_playlist_path))
-
+    # endregion
 
 
     # get channel
     channel_id = channel.id
     channel = client.get_channel(channel_id)
-    if not channel:
-        await ctx.send("um can u giv me a valid voice channel id pls")
-
-
 
 
     # actual playing code
     voice_client = await channel.connect()
     dupe_music_files_2 = music_files.copy()
 
-
     for i in range(len(music_files)):
         music_files = [file.replace("\\", '/') for file in music_files]
 
 
-
+    # region loading playing variables
         # master playlist
         if playlist == "master":
             file_to_load = f"playlists{music_files[i]}"
@@ -191,18 +200,14 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
             full_file_path = f"{folder_path}/{music_files[i]}"
             file_to_play = f"playlists/{playlist}/{music_files[i]}"
             queue_list = music_files_with_playlist_path
+    # endregion
 
 
         f = music_tag.load_file(file_to_load)
-        title = f['title']
-        if music_files[i].endswith(".mp3"):
-            time = MP3(full_file_path).info.length + 3
-        else:
-            time = MP4(full_file_path).info.length + 3
+        time = await get_track_duration(music_files[i], full_file_path)
 
-        async def sleep_until_song_ends(time):
-            await asyncio.sleep(time)
 
+    # region buttons
         class Buttons(discord.ui.View):
             @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
             async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
@@ -228,9 +233,10 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
             async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 await voice_client.disconnect()
                 await interaction.response.edit_message(content='bai bai', view=None)
+    # endregion
 
         voice_client.play(discord.FFmpegPCMAudio(file_to_play))
-        await ctx.send(f"playing {title} - {f['artist']}", silent=True, view=Buttons(timeout=None))
+        await ctx.send(f"playing {f['title']} - {f['artist']}", silent=True, view=Buttons(timeout=None))
         if i < len(music_files)-1:
             queue_list.pop(0)
         with open("queue.txt", "w", encoding="utf-8") as file:
@@ -253,7 +259,6 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
 
 
-
 @client.hybrid_command(description="plays a file 24/7")
 @app_commands.describe(file="wat file i sing? pls include path and file extension")
 async def play24(ctx, *, file="sheep.mp3"):
@@ -261,14 +266,9 @@ async def play24(ctx, *, file="sheep.mp3"):
     folder_path = f"{rootpath}/smortie/playlists"
     file_path = f"{folder_path}/{file}"
 
-    if file.endswith(".mp3"):
-        time = MP3(f'{folder_path}/{file}').info.length + 3
-    else:
-        time = MP4(f'{folder_path}/{file}').info.length + 3
+    time = await get_track_duration(file, file_path)
 
     channel = client.get_channel(channel_id)
-    if not channel:
-        return print('Invalid voice channel ID.')
 
     voice_client = await channel.connect()
     await ctx.send(f"playing {file} 24/7. please disconnect me from the voice channel if you want to play something else :D")
@@ -286,14 +286,9 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     folder_path = f"{rootpath}/smortie/playlists"
     file_path = f"{folder_path}/{file}"
 
-    if file.endswith(".mp3"):
-        time = MP3(f'{folder_path}/{file}').info.length + 3
-    else:
-        time = MP4(f'{folder_path}/{file}').info.length + 3
+    time = await get_track_duration(file, file_path)
 
     channel = client.get_channel(channel_id)
-    if not channel:
-        return print('Invalid voice channel ID.')
 
     voice_client = await channel.connect()
     await ctx.send(f"playing {file} :D ill disconnect when its done")
@@ -331,7 +326,6 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
     await asyncio.sleep(time)
     await voice_client.disconnect()
     await ctx.send("bai bai")
-
 
 
 
@@ -408,21 +402,12 @@ async def stop(ctx):
     voice_client = ctx.guild.voice_client
     await voice_client.disconnect()
     await ctx.send("bai bai")
-
-@client.hybrid_command()
-async def pause(ctx):
-    voice_client = ctx.guild.voice_client
-    voice_client.pause()
-    await ctx.send("ok i wait")
-
-@client.hybrid_command()
-async def resume(ctx):
     voice_client = ctx.guild.voice_client
     voice_client.resume()
     await ctx.send("yay i playing again")
                                
-# non music stuff
 
+# region non music stuff
 @client.hybrid_command(aliases=['sheep'])
 async def shaun_the_sheep(ctx):
     await ctx.send("He’s Shaun the Sheep\nHe’s Shaun the Sheep\nHe even mucks about with those who cannot bleat\nKeep it in Mind,\nHe's One of a Kind\nOh life's a treat with Shaun the Sheep\nHe's Shaun the Sheep (He's Shaun the Sheep.)\nHe's Shaun the Sheep (He's Shaun the Sheep.)\nHe doesn't miss a trick or ever lose a beat (lose a beat.)\nPerhaps one day, you'll find a way to come and meet with Shaun the Sheep.\nOh, come and bleat with Shaun the Sheep! (Baaaaaaaaaaaaaaaaaaaaaaaaaa!)")
@@ -460,6 +445,7 @@ async def on_command_error(ctx, error):
     channel = client.get_channel(channel_id)
     await channel.send(error)
     await channel.send(error.__traceback__)
+# endregion
 
 keep_alive.keep_alive()
 client.run(token)
