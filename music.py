@@ -71,8 +71,10 @@ async def get_track_duration(file, full_file_path):
     return(time)
 
 
-async def sleep_until_song_ends(time):
-    await asyncio.sleep(time)
+async def sleep_until_song_ends(ctx):
+    voice_client = ctx.guild.voice_client
+    while voice_client.is_playing() or voice_client.is_paused():
+        await asyncio.sleep(1)
 # endregion
 
 
@@ -243,7 +245,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
         with open("queue.txt", "w", encoding="utf-8") as file:
             file.write("\n".join(queue_list))
 
-        task = asyncio.create_task(sleep_until_song_ends(time))
+        task = asyncio.create_task(sleep_until_song_ends(ctx))
         try:
             await task
             voice_client.stop()
@@ -287,15 +289,13 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     folder_path = f"{rootpath}/smortie/playlists"
     file_path = f"{folder_path}/{file}"
 
-    time = await get_track_duration(file, file_path)
-
     channel = client.get_channel(channel_id)
 
     voice_client = await channel.connect()
     await ctx.send(f"playing {file} :D ill disconnect when its done")
 
     voice_client.play(discord.FFmpegPCMAudio(file_path))
-    await asyncio.sleep(time)
+    await sleep_until_song_ends(ctx)
     await voice_client.disconnect()
     await ctx.send("bai bai")
 
@@ -312,15 +312,13 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
         os.makedirs("playlists/local")
     await file.save(file_path)
 
-    time = await get_track_duration(file.filename,file_path)
-
     channel = client.get_channel(channel_id)
 
     voice_client = await channel.connect()
     await ctx.send(f"playing {file.filename} :D ill disconnect when its done")
 
     voice_client.play(discord.FFmpegPCMAudio(file_path))
-    await asyncio.sleep(time)
+    await sleep_until_song_ends(ctx)
     await voice_client.disconnect()
     await ctx.send("bai bai")
 
@@ -399,7 +397,18 @@ async def stop(ctx):
     voice_client = ctx.guild.voice_client
     await voice_client.disconnect()
     await ctx.send("bai bai")
-                               
+
+@client.hybrid_command()
+async def pause(ctx):
+    voice_client = ctx.guild.voice_client
+    await voice_client.pause()
+    await ctx.send("ok i wait")
+
+@client.hybrid_command()
+async def resume(ctx):
+    voice_client = ctx.guild.voice_client
+    await voice_client.resume()
+    await ctx.send("ok i sing")
 
 # region non music stuff
 @client.hybrid_command(aliases=['sheep'])
