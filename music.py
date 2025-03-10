@@ -41,7 +41,7 @@ async def send_codeblock(ctx, msg):
     if len(msg) > 1993:
         if len(msg) > 3993:
             first_msg = msg[:1993]
-            second_msg = msg[1993:3993].strip()
+            second_msg = msg[1993:3993]
             third_msg = msg[3993:].strip()
             await ctx.send(f"```{first_msg}```")
             await ctx.send(f"```{second_msg}```")
@@ -226,7 +226,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
                     if len(msg) > 1993:
                         if len(msg) > 3993:
                             first_msg = msg[:1993]
-                            second_msg = msg[1993:3993].strip()
+                            second_msg = msg[1993:3993]
                             third_msg = msg[3993:].strip()
                             await interaction.response.send_message(f"```{first_msg}```")
                             await interaction.response.send_message(f"```{second_msg}```")
