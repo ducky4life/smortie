@@ -303,6 +303,7 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
 @client.hybrid_command()
 async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attachment):
     await ctx.defer()
+
     channel_id = channel.id
     folder_path = f"{rootpath}/smortie/playlists/local"
     file_path = f"{folder_path}/{file.filename}"
@@ -310,14 +311,9 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
         os.makedirs("playlists/local")
     await file.save(file_path)
 
-    if file.filename.endswith(".mp3"):
-        time = MP3(f'{folder_path}/{file.filename}').info.length + 3
-    else:
-        time = MP4(f'{folder_path}/{file.filename}').info.length + 3
+    time = await get_track_duration(file.filename,file_path)
 
     channel = client.get_channel(channel_id)
-    if not channel:
-        return print('Invalid voice channel ID.')
 
     voice_client = await channel.connect()
     await ctx.send(f"playing {file.filename} :D ill disconnect when its done")
@@ -402,9 +398,6 @@ async def stop(ctx):
     voice_client = ctx.guild.voice_client
     await voice_client.disconnect()
     await ctx.send("bai bai")
-    voice_client = ctx.guild.voice_client
-    voice_client.resume()
-    await ctx.send("yay i playing again")
                                
 
 # region non music stuff
