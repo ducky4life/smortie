@@ -289,10 +289,26 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     folder_path = f"{rootpath}/smortie/playlists"
     file_path = f"{folder_path}/{file}"
 
+    # region buttons
+    class Buttons(discord.ui.View):
+        @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
+        async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            voice_client.pause()
+            await interaction.response.send_message('ok i wait')
+        @discord.ui.button(label='resume', style=discord.ButtonStyle.success)
+        async def resume(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            voice_client.resume()
+            await interaction.response.send_message('yay i sing')
+        @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
+        async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await voice_client.disconnect()
+            await interaction.response.edit_message(content='bai bai', view=None)
+    # endregion
+
     channel = client.get_channel(channel_id)
 
     voice_client = await channel.connect()
-    await ctx.send(f"playing {file} :D ill disconnect when its done")
+    await ctx.send(f"playing {file} :D ill disconnect when its done", view=Buttons(timeout=None))
 
     voice_client.play(discord.FFmpegPCMAudio(file_path))
     await sleep_until_song_ends(ctx)
@@ -312,10 +328,26 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
         os.makedirs("playlists/local")
     await file.save(file_path)
 
+    # region buttons
+    class Buttons(discord.ui.View):
+        @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
+        async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            voice_client.pause()
+            await interaction.response.send_message('ok i wait')
+        @discord.ui.button(label='resume', style=discord.ButtonStyle.success)
+        async def resume(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            voice_client.resume()
+            await interaction.response.send_message('yay i sing')
+        @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
+        async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await voice_client.disconnect()
+            await interaction.response.edit_message(content='bai bai', view=None)
+    # endregion
+
     channel = client.get_channel(channel_id)
 
     voice_client = await channel.connect()
-    await ctx.send(f"playing {file.filename} :D ill disconnect when its done")
+    await ctx.send(f"playing {file.filename} :D ill disconnect when its done", view=Buttons(timeout=None))
 
     voice_client.play(discord.FFmpegPCMAudio(file_path))
     await sleep_until_song_ends(ctx)
