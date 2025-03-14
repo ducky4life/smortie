@@ -413,12 +413,12 @@ async def queue(ctx):
 
 @client.hybrid_command(aliases=['import'])
 @app_commands.describe(queue="wat i nom")
-async def importqueue(ctx, *, queue=None):
+async def importqueue(ctx, *, queue:str=None):
     if queue == None:
         await ctx.send("no queue given")
     else:
         with open("queue.txt", "w", encoding="utf-8") as file:
-            file.write(queue.strip("```").replace("\\", "/"))
+            file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
         await ctx.send("i tak the q, n eat it")
 
 
