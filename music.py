@@ -120,9 +120,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
         music_files = ""
         for path, subdirs, files in os.walk(folder_path):
             for name in files:
-                if name in music_files:
-                    ctx.send(name)
-                else:
+                if not name in music_files:
                     music_files += f'{os.path.join(path, name)}?'.removeprefix(folder_path)
         music_files = music_files.split("?")
         music_files.pop(-1)
@@ -151,6 +149,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
     if playlist == "master":
         with open("queue.txt", "w", encoding="utf-8") as file:
             for music in dupe_music_files:
+                music.strip()
                 if music == "\n" or music == "":
                     dupe_music_files.remove(music)
             file.write("\n".join(dupe_music_files))
