@@ -472,7 +472,7 @@ async def on_message(message: discord.Message):
             await message.reply("omg me mention! i love smorties :D <:saveme:1334594782172811365><:saveme:1334594782172811365>")
         if "mik" in message.content.lower() or "milk" in message.content.lower() or "botol" in message.content.lower() or "🍼" in message.content.lower():
             await message.reply("mik 🍼")
-        if "hat" in message.content.lower():
+        if " hat" in message.content.lower():
             await message.channel.send("""🎩 
 .    .
    v""")
