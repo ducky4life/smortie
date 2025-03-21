@@ -75,6 +75,32 @@ async def sleep_until_song_ends(ctx):
     voice_client = ctx.guild.voice_client
     while voice_client.is_playing() or voice_client.is_paused():
         await asyncio.sleep(1)
+
+async def search_songs(filter:str, query:str):
+    all_songs = ""
+    songs = []
+    for path, subdirs, files in os.walk(f"{rootpath}/smortie/playlists"):
+        for name in files:
+            all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"{rootpath}/smortie/playlists").replace("\\", "/")
+    all_songs = all_songs.split("?")
+    all_songs.pop(-1)
+
+    song_dicts = [{"title": music_tag.load_file(f"playlists/{song}")['title'], "artist": music_tag.load_file(f"playlists/{song}")['artist'], "file_path": song} for song in all_songs]
+
+    if filter == "title":
+        songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['title']).lower() or query.lower() in str(song['file_path']).lower()]
+    elif filter == "artist":
+        songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['artist']).lower()]
+
+    return(songs)
+
+async def write_to_queue_file(ctx, queue):
+    if queue == None:
+        await ctx.send("no queue given")
+    else:
+        with open("queue.txt", "w", encoding="utf-8") as file:
+            file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
+        await ctx.send("i tak the q, n eat it")
 # endregion
 
 
@@ -286,7 +312,9 @@ async def play24(ctx, *, file="sheep.mp3"):
 async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     channel_id = channel.id
     folder_path = f"{rootpath}/smortie/playlists"
-    file_path = f"{folder_path}/{file}"
+    song = await search_songs("title", file)
+    file_path = f"{folder_path}/{song[0]}"
+    f = music_tag.load_file(file_path)
 
     # region buttons
     class Buttons(discord.ui.View):
@@ -307,7 +335,7 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     channel = client.get_channel(channel_id)
 
     voice_client = await channel.connect()
-    await ctx.send(f"playing {file} :D ill disconnect when its done", view=Buttons(timeout=None))
+    await ctx.send(f"playing {f['title']} :D ill disconnect when its done", view=Buttons(timeout=None))
 
     voice_client.play(discord.FFmpegPCMAudio(file_path))
     await sleep_until_song_ends(ctx)
@@ -355,6 +383,16 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
 
 
 
+@client.hybrid_command(description="imports all songs of the artist")
+async def playartist(ctx, artist=None):
+
+    songs = await search_songs("artist", artist)
+    queue = "\n".join(songs)
+    await send_codeblock(ctx, queue)
+    await write_to_queue_file(ctx, queue)
+
+
+
 @client.hybrid_command(aliases=['playlist'])
 @app_commands.describe(playlist="wat u si")
 async def playlists(ctx, *, playlist=None):
@@ -381,19 +419,7 @@ async def playlists(ctx, *, playlist=None):
     app_commands.Choice(name='artist', value="artist")
 ])
 async def search(ctx, filter="title", query=None):
-    all_songs = ""
-    for path, subdirs, files in os.walk(f"{rootpath}/smortie/playlists"):
-        for name in files:
-            all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"{rootpath}/smortie/playlists").replace("\\", "/")
-    all_songs = all_songs.split("?")
-    all_songs.pop(-1)
-
-    song_dicts = [{"title": music_tag.load_file(f"playlists/{song}")['title'], "artist": music_tag.load_file(f"playlists/{song}")['artist'], "file_path": song} for song in all_songs]
-
-    if filter == "title":
-        songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['title']).lower()]
-    elif filter == "artist":
-        songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['artist']).lower()]
+    songs = await search_songs(filter, query)
 
     msg = "\n".join(songs)
     await send_codeblock(ctx, msg)
@@ -414,12 +440,7 @@ async def queue(ctx):
 @client.hybrid_command(aliases=['import'])
 @app_commands.describe(queue="wat i nom")
 async def importqueue(ctx, *, queue:str=None):
-    if queue == None:
-        await ctx.send("no queue given")
-    else:
-        with open("queue.txt", "w", encoding="utf-8") as file:
-            file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
-        await ctx.send("i tak the q, n eat it")
+    await write_to_queue_file(ctx, queue)
 
 
 
