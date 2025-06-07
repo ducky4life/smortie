@@ -29,6 +29,8 @@ if codespace == "github":
     rootpath = "/workspaces"
 elif codespace == "actions":
     rootpath = "/home/runner/work/smortie"
+elif codespace == "linux":
+    rootpath = "/home/ducky/code"
 else:
     rootpath = "c:/Users/ducky/Documents"
 
