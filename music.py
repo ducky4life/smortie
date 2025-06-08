@@ -20,19 +20,21 @@ bot_prefix = "smort"
 codespace = "actions"
 
 
-if bot_prefix == "smort":
-    token = os.getenv("SMORT_TOKEN")
-else:
-    token = os.getenv("ROBO_TOKEN")
-
 if codespace == "github":
     rootpath = "/workspaces"
 elif codespace == "actions":
     rootpath = "/home/runner/work/smortie"
 elif codespace == "linux":
     rootpath = "/home/ducky/code"
+    bot_prefix = "ysis"
 else:
     rootpath = "c:/Users/ducky/Documents"
+
+if bot_prefix == "smort":
+    token = os.getenv("SMORT_TOKEN")
+else:
+    token = os.getenv("ROBO_TOKEN")
+
 
 client = commands.Bot(
     command_prefix=[f"!{bot_prefix} ", f"!{bot_prefix} "],
