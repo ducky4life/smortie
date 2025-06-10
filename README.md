@@ -23,4 +23,4 @@ contact me at ducky4life@duck.com
 - master playlist (all files inside /playlists/*)
 - importing/displaying queue (!smort import, /queue)
 - continuing from where you left off (/play the "continue" playlist)
-- searching by track name/artist name (/search)
+- searching by track name/artist name (/search, /playartist to quickly import all songs of an artist)
