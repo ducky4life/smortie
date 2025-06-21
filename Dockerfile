@@ -8,7 +8,7 @@ COPY keep_alive.py /smortie/keep_alive.py
 
 COPY .env /smortie/.env
 
-COPY playlists/* /smortie/playlists/
+COPY playlists /smortie/playlists/
 
 COPY requirements.txt /smortie/requirements.txt
 
