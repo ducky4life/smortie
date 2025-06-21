@@ -440,10 +440,23 @@ async def playlists(ctx, *, playlist=None):
     app_commands.Choice(name='artist', value="artist")
 ])
 async def search(ctx, filter="title", query=None):
+    class QueueButtons(discord.ui.View):
+        @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
+        async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await interaction.response.edit_message(content="queue go bai bai", view=None)
+        @discord.ui.button(label='import', style=discord.ButtonStyle.secondary)
+        async def importqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await edit_queue_file("overwrite", interaction.message.content)
+            await interaction.response.send_message("i tak the q, n eat it")
+        @discord.ui.button(label='append', style=discord.ButtonStyle.secondary)
+        async def appendqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await edit_queue_file("append", interaction.message.content)
+            await interaction.response.send_message("i tak the q, n eat it")
+
     songs = await search_songs(filter, query)
 
     msg = "\n".join(songs)
-    await send_codeblock(ctx, msg)
+    await send_codeblock(ctx, msg, view=QueueButtons(timeout=None))
 
 
 
