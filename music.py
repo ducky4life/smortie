@@ -30,7 +30,7 @@ elif codespace == "linux":
     rootpath = "/home/ducky/code"
     bot_prefix = "ysis"
 elif codespace == "docker":
-    rootpath = "/"
+    rootpath = ""
     bot_prefix = "ysis"
 else:
     rootpath = "c:/Users/ducky/Documents"
