@@ -17,7 +17,7 @@ intents.members = True
 load_dotenv()
 
 bot_prefix = "smort"
-codespace = "actions"
+codespace = "docker"
 
 
 if codespace == "github":
