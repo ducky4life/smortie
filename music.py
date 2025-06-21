@@ -27,6 +27,9 @@ elif codespace == "actions":
 elif codespace == "linux":
     rootpath = "/home/ducky/code"
     bot_prefix = "ysis"
+elif codespace == "docker":
+    rootpath = "/"
+    bot_prefix = "ysis"
 else:
     rootpath = "c:/Users/ducky/Documents"
 
@@ -485,24 +488,25 @@ async def baa(ctx, *, message=None):
 @client.event
 async def on_message(message: discord.Message):
     await client.process_commands(message)
-    if "!smortie" in message.content.lower():
-        await asyncio.sleep(2)
-        await message.channel.send("bru mik botol clon")
-    elif message.content.startswith('!smort'):
-        return
-    elif message.author.id != 1186326404267266059 and message.author.id != 839794863591260182:
-        if "baa" in message.content.lower():
-            await message.channel.send("Baaaaaaaa!")
-        if "help mi" in message.content.lower():
-            await message.reply("PLS HELP MI TOO PLEASE")
-        if "smortie" in message.content.lower() or "smartie" in message.content.lower() or "smorty" in message.content.lower() or "smort" in message.content.lower() or "smarty" in message.content.lower():
-            await message.reply("omg me mention! i love smorties :D <:saveme:1334594782172811365><:saveme:1334594782172811365>")
-        if "mik" in message.content.lower() or "milk" in message.content.lower() or "botol" in message.content.lower() or "🍼" in message.content.lower():
-            await message.reply("mik 🍼")
-        if " hat" in message.content.lower():
-            await message.channel.send("""🎩 
+    if codespace != "docker" and codespace != "linux":
+        if "!smortie" in message.content.lower():
+            await asyncio.sleep(2)
+            await message.channel.send("bru mik botol clon")
+        elif message.content.startswith('!smort'):
+            return
+        elif message.author.id != 1186326404267266059 and message.author.id != 839794863591260182:
+            if "baa" in message.content.lower():
+                await message.channel.send("Baaaaaaaa!")
+            if "help mi" in message.content.lower():
+                await message.reply("PLS HELP MI TOO PLEASE")
+            if "smortie" in message.content.lower() or "smartie" in message.content.lower() or "smorty" in message.content.lower() or "smort" in message.content.lower() or "smarty" in message.content.lower():
+                await message.reply("omg me mention! i love smorties :D <:saveme:1334594782172811365><:saveme:1334594782172811365>")
+            if "mik" in message.content.lower() or "milk" in message.content.lower() or "botol" in message.content.lower() or "🍼" in message.content.lower():
+                await message.reply("mik 🍼")
+            if " hat" in message.content.lower():
+                await message.channel.send("""🎩 
 .    .
-   v""")
+v""")
 
 @client.event
 async def on_command_error(ctx, error):
