@@ -45,7 +45,7 @@ jobs:
         touch .env
         touch queue.txt
         echo "SMORT_TOKEN=$TOKEN" >> .env
-        
+        echo 'WORKSPACE="actions"' >> .env
 
     - name: run bot
       run: python music.py
