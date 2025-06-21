@@ -111,10 +111,7 @@ async def write_to_queue_file(ctx, mode, queue):
 async def edit_queue_file(mode, queue):
     if mode == "append":
         with open("queue.txt", "a", encoding="utf-8") as file:
-            if file.readline() != "":
-                file.write("\n" + queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
-            else:
-                await edit_queue_file("overwrite", queue)
+            file.write("\n" + queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
     elif mode == "overwrite":
         with open("queue.txt", "w", encoding="utf-8") as file:
             file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
