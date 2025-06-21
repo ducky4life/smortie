@@ -18,4 +18,6 @@ RUN python -m pip install --upgrade pip
 
 RUN pip install -r /smortie/requirements.txt
 
-CMD [ "python", "/smortie/music.py" ]
+WORKDIR /smortie
+
+CMD [ "python", "music.py" ]
