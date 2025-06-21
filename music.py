@@ -52,7 +52,7 @@ async def on_ready():
 
 
 # region helper functions
-async def send_codeblock(ctx, msg):
+async def send_codeblock(ctx, msg, *, view=None):
     if len(msg) > 1993:
         if len(msg) > 3993:
             first_msg = msg[:1993]
@@ -67,7 +67,7 @@ async def send_codeblock(ctx, msg):
             await ctx.send(f"```{first_msg}```")
             await ctx.send(f"```{second_msg}```")
     else:
-        await ctx.send(f"```{msg}```")
+        await ctx.send(f"```{msg}```", view=view)
 
 
 async def get_track_duration(file, full_file_path):
@@ -101,13 +101,20 @@ async def search_songs(filter:str, query:str):
 
     return(songs)
 
-async def write_to_queue_file(ctx, queue):
+async def write_to_queue_file(ctx, mode, queue):
     if queue == None:
         await ctx.send("no queue given")
     else:
+        await edit_queue_file(mode, queue)
+        await ctx.send("i tak the q, n eat it")
+
+async def edit_queue_file(mode, queue):
+    if mode == "append":
+        with open("queue.txt", "a", encoding="utf-8") as file:
+            file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
+    elif mode == "overwrite":
         with open("queue.txt", "w", encoding="utf-8") as file:
             file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
-        await ctx.send("i tak the q, n eat it")
 # endregion
 
 
@@ -243,6 +250,11 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
 
     # region buttons
+        class QueueButtons(discord.ui.View):
+            @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
+            async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+                await interaction.response.edit_message(content="queue go bai bai", view=None)
+
         class Buttons(discord.ui.View):
             @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
             async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
@@ -263,7 +275,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
                     for row in queue_file:
                         if row != "\n":
                             msg += row
-                    await interaction.response.send_message(f"```{msg[:1993]}```")
+                    await interaction.response.send_message(f"```{msg[:1993]}```", view=QueueButtons(timeout=None))
             @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
             async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 await voice_client.disconnect()
@@ -398,7 +410,7 @@ async def playartist(ctx, artist=None):
     songs = await search_songs("artist", artist)
     queue = "\n".join(songs)
     await send_codeblock(ctx, queue)
-    await write_to_queue_file(ctx, queue)
+    await write_to_queue_file(ctx, "overwrite", queue)
 
 
 
@@ -437,19 +449,32 @@ async def search(ctx, filter="title", query=None):
 
 @client.hybrid_command(aliases=['q'])
 async def queue(ctx):
+    class QueueButtons(discord.ui.View):
+        @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
+        async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await interaction.response.edit_message(content="queue go bai bai", view=None)
+        @discord.ui.button(label='import', style=discord.ButtonStyle.secondary)
+        async def importqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await edit_queue_file("overwrite", interaction.message.content)
+            await interaction.response.send_message("i tak the q, n eat it")
+        @discord.ui.button(label='append', style=discord.ButtonStyle.secondary)
+        async def appendqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await edit_queue_file("append", interaction.message.content)
+            await interaction.response.send_message("i tak the q, n eat it")
+
     with open("queue.txt", encoding="utf-8") as queue_file:
         msg = ""
         for row in queue_file:
             if row != "\n":
                 msg += row
-        await send_codeblock(ctx, msg)
+        await send_codeblock(ctx, msg, view=QueueButtons(timeout=None))
 
 
 
 @client.hybrid_command(aliases=['import'])
 @app_commands.describe(queue="wat i nom")
 async def importqueue(ctx, *, queue:str=None):
-    await write_to_queue_file(ctx, queue)
+    await write_to_queue_file(ctx, "overwrite", queue)
 
 
 
