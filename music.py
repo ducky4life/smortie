@@ -20,6 +20,7 @@ bot_prefix = "smort"
 codespace = "docker"
 
 codespace = os.getenv("WORKSPACE")
+print(codespace)
 
 if codespace == "github":
     rootpath = "/workspaces"
