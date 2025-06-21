@@ -477,6 +477,12 @@ async def importqueue(ctx, *, queue:str=None):
     await write_to_queue_file(ctx, "overwrite", queue)
 
 
+@client.hybrid_command(aliases=['append'])
+@app_commands.describe(queue="wat i nom")
+async def appendqueue(ctx, *, queue:str=None):
+    await write_to_queue_file(ctx, "append", queue)
+
+
 
 @client.hybrid_command()
 async def stop(ctx):
