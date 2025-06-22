@@ -124,9 +124,14 @@ async def edit_queue_file(mode, queue):
 
 @client.hybrid_command(description="plays a playlist given a vc id and playlist name", brief="plays a playlist")
 @app_commands.describe(playlist="wat i play", shuffle="say shuffle if yes")
-@app_commands.choices(shuffle=[
-    app_commands.Choice(name='shuffle', value="shuffle"),
-    app_commands.Choice(name='no', value="no")
+@app_commands.choices(
+    playlist=[
+        app_commands.Choice(name='queue', value="queue"),
+        app_commands.Choice(name='master', value="master"),
+        app_commands.Choice(name='continue', value="continue"),
+    shuffle=[
+        app_commands.Choice(name='shuffle', value="shuffle"),
+        app_commands.Choice(name='no', value="no")
 ])
 async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
