@@ -320,14 +320,15 @@ async def play24(ctx, *, channel: discord.VoiceChannel=None, file="sheep.mp3"):
     if channel != None:
         channel_id = channel.id
     folder_path = f"{rootpath}/smortie/playlists"
-    file_path = f"{folder_path}/{file}"
+    song = await search_songs("title", file)
+    file_path = f"{folder_path}/{song[0]}"
 
-    time = await get_track_duration(file, file_path)
+    time = await get_track_duration(song[0], file_path)
 
     channel = client.get_channel(channel_id)
 
     voice_client = await channel.connect()
-    await ctx.send(f"playing {file} 24/7. please disconnect me from the voice channel if you want to play something else :D")
+    await ctx.send(f"playing {song[0]} 24/7. please disconnect me from the voice channel if you want to play something else :D")
 
     while True:
         voice_client.play(discord.FFmpegPCMAudio(file_path))
