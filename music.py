@@ -40,7 +40,7 @@ else:
 if bot_prefix == "smort":
     token = os.getenv("SMORT_TOKEN")
 else:
-    token = os.getenv("ROBO_TOKEN")
+    token = os.getenv("NS_TOKEN")
 
 
 client = commands.Bot(
@@ -124,14 +124,14 @@ async def edit_queue_file(mode, queue):
 
 # music stuffs
 
+playlist_choices = [app_commands.Choice(name="master", value="master"), app_commands.Choice(name="continue", value="continue")]
+for playlist in os.listdir(f"{rootpath}/smortie/playlists"):
+    if "." not in playlist:
+        playlist_choices.append(app_commands.Choice(name=playlist, value=playlist))
+
 @client.hybrid_command(description="plays a playlist given a vc id and playlist name", brief="plays a playlist")
 @app_commands.describe(playlist="wat i play, continue if imported queue, master if all songs in all playlists", shuffle="say shuffle if yes")
-@app_commands.choices(playlist=[
-    app_commands.Choice(name='queue', value="queue"),
-    app_commands.Choice(name='master', value="master"),
-    app_commands.Choice(name='continue', value="continue")
-],
-shuffle=[
+@app_commands.choices(playlist=playlist_choices, shuffle=[
     app_commands.Choice(name='shuffle', value="shuffle"),
     app_commands.Choice(name='no', value="no")
 ])
