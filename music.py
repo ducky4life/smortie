@@ -125,7 +125,7 @@ async def edit_queue_file(mode, queue):
 # music stuffs
 
 @client.hybrid_command(description="plays a playlist given a vc id and playlist name", brief="plays a playlist")
-@app_commands.describe(playlist="wat i play", playlist="continue if imported queue, master if all songs in all playlists", shuffle="say shuffle if yes")
+@app_commands.describe(playlist="wat i play, continue if imported queue, master if all songs in all playlists", shuffle="say shuffle if yes")
 @app_commands.choices(playlist=[
     app_commands.Choice(name='queue', value="queue"),
     app_commands.Choice(name='master', value="master"),
