@@ -10,6 +10,8 @@ from mutagen.mp4 import MP4
 import random
 import music_tag
 from dotenv import load_dotenv
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 
 intents = discord.Intents.all()
 intents.members = True
@@ -123,7 +125,7 @@ async def edit_queue_file(mode, queue):
 # music stuffs
 
 @client.hybrid_command(description="plays a playlist given a vc id and playlist name", brief="plays a playlist")
-@app_commands.describe(playlist="wat i play", shuffle="say shuffle if yes")
+@app_commands.describe(playlist="wat i play", playlist="continue if imported queue, master if all songs in all playlists", shuffle="say shuffle if yes")
 @app_commands.choices(playlist=[
     app_commands.Choice(name='queue', value="queue"),
     app_commands.Choice(name='master', value="master"),
@@ -422,6 +424,37 @@ async def playartist(ctx, artist=None):
 
 
 
+@client.hybrid_command(description="imports songs from spotify playlist")
+async def playspotify(ctx, playlist=None):
+
+    client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+
+    await ctx.defer()
+    queue_list = []
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
+                                               client_secret=client_secret,
+                                               redirect_uri="http://127.0.0.1:1234",
+                                               scope="user-library-read"))
+
+    results = sp.playlist_tracks(playlist, limit=100)
+    tracks = results['items']
+    while results['next']:
+        results = sp.next(tracks)
+        tracks.extend(results['items'])
+
+    for song in tracks:
+        search_result = await search_songs("title", song['track']['name'])
+        try:
+            queue_list.append(search_result[0])
+        except IndexError:
+            continue
+    queue = "\n".join(queue_list)
+    await send_codeblock(ctx, queue)
+    await write_to_queue_file(ctx, "overwrite", queue)
+
+
+
 @client.hybrid_command(aliases=['playlist'])
 @app_commands.describe(playlist="wat u si")
 async def playlists(ctx, *, playlist=None):
@@ -540,7 +573,7 @@ async def baa(ctx, *, message=None):
 @client.event
 async def on_message(message: discord.Message):
     await client.process_commands(message)
-    if codespace != "docker" and codespace != "linux":
+    if codespace == "actions":
         if "!smortie" in message.content.lower():
             await asyncio.sleep(2)
             await message.channel.send("bru mik botol clon")
