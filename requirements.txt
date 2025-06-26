@@ -5,3 +5,4 @@ music_tag
 pynacl
 python-dotenv
 waitress
+spotipy
