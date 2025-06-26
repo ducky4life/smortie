@@ -16,6 +16,8 @@ permissions:
 
 env:
   TOKEN : ${{ secrets.SMORT_TOKEN }}
+  SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+  SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
 
 concurrency:
   group: ${{ github.ref }}
