@@ -11,7 +11,7 @@ import random
 import music_tag
 from dotenv import load_dotenv
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyClientCredentials
 
 intents = discord.Intents.all()
 intents.members = True
@@ -432,10 +432,7 @@ async def playspotify(ctx, playlist=None):
 
     await ctx.defer()
     queue_list = []
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
-                                               client_secret=client_secret,
-                                               redirect_uri="http://127.0.0.1:1234",
-                                               scope="user-library-read"))
+    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id client_secret=client_secret))
 
     results = sp.playlist_tracks(playlist, limit=100)
     tracks = results['items']
