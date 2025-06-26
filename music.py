@@ -430,6 +430,9 @@ async def playspotify(ctx, playlist=None):
     client_id = os.getenv("SPOTIFY_CLIENT_ID")
     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
+    channel = client.get_channel(1131914463277240361)
+    await channel.send(client_id)
+
     await ctx.defer()
     queue_list = []
     sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))
