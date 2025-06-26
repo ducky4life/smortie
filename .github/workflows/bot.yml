@@ -50,7 +50,6 @@ jobs:
         echo 'WORKSPACE="actions"' >> .env
         echo "SPOTIFY_CLIENT_ID=$SPOTIFY_CLIENT_ID" >> .env
         echo "SPOTIFY_CLIENT_SECRET=$SPOTIFY_CLIENT_SECRET" >> .env
-        cat .env
 
     - name: run bot
       run: python music.py
