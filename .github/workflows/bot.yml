@@ -48,8 +48,8 @@ jobs:
         touch queue.txt
         echo "SMORT_TOKEN=$TOKEN" >> .env
         echo 'WORKSPACE="actions"' >> .env
-        echo 'SPOTIFY_CLIENT_ID=$SPOTIFY_CLIENT_ID' >> .env
-        echo 'SPOTIFY_CLIENT_SECRET=$SPOTIFY_CLIENT_SECRET' >> .env
+        echo "SPOTIFY_CLIENT_ID=$SPOTIFY_CLIENT_ID" >> .env
+        echo "SPOTIFY_CLIENT_SECRET=$SPOTIFY_CLIENT_SECRET" >> .env
 
     - name: run bot
       run: python music.py
