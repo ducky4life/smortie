@@ -40,7 +40,7 @@ else:
 if bot_prefix == "smort":
     token = os.getenv("SMORT_TOKEN")
 else:
-    token = os.getenv("NS_TOKEN")
+    token = os.getenv("ROBO_TOKEN")
 
 
 client = commands.Bot(
