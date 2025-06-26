@@ -42,7 +42,7 @@ jobs:
     - name: install ffmpeg
       run: sudo apt install ffmpeg
 
-    - name: write token and make queue.txt
+    - name: write secrets and make queue.txt
       run: |
         touch .env
         touch queue.txt

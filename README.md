@@ -21,7 +21,7 @@ contact me at ducky4life@duck.com
 - playing a single file (/playfile, file inside /playlists/*)
 - playing a local file (uploaded with /playlocalfile command)
 - playing an imported queue (/play the "continue" playlist)
-- searching for local songs from a spotify playlist and importing to queue
+- searching for local songs from a spotify playlist and importing to queue (/playspotify)
 - master playlist (all files inside /playlists/*)
 - importing/displaying/appending to queue (!smort import, /queue)
 - continuing from where you left off (/play the "continue" playlist)
