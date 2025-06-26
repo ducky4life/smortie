@@ -432,7 +432,7 @@ async def playspotify(ctx, playlist=None):
 
     await ctx.defer()
     queue_list = []
-    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id client_secret=client_secret))
+    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))
 
     results = sp.playlist_tracks(playlist, limit=100)
     tracks = results['items']
