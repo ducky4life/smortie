@@ -145,7 +145,7 @@ async def view_queue_file():
 
 # music stuffs
 
-playlist_choices = [app_commands.Choice(name="master", value="master"), app_commands.Choice(name="continue", value="continue")]
+playlist_choices = [app_commands.Choice(name="continue", value="continue"), app_commands.Choice(name="master", value="master")]
 for playlist in os.listdir(f"{rootpath}/smortie/playlists"):
     if "." not in playlist:
         playlist_choices.append(app_commands.Choice(name=playlist, value=playlist))
