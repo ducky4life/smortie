@@ -105,6 +105,14 @@ async def search_songs(filter:str, query:str):
 
     return(songs)
 
+async def view_queue_file():
+    with open("queue.txt", encoding="utf-8") as queue_file:
+        msg = ""
+        for row in queue_file:
+            if row != "\n":
+                msg += row
+        return msg
+
 async def write_to_queue_file(ctx, mode, queue):
     if queue == None:
         await ctx.send("no queue given")
@@ -114,8 +122,13 @@ async def write_to_queue_file(ctx, mode, queue):
 
 async def edit_queue_file(mode, queue):
     if mode == "append":
-        with open("queue.txt", "a", encoding="utf-8") as file:
-            file.write("\n" + queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
+        with open("queue.txt", "a+", encoding="utf-8") as file:
+            current_file = []
+            current_file = [current_file.append(row) for row in file]
+            if current_file != "":
+                file.write("\n" + queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
+            else:
+                file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
     elif mode == "overwrite":
         with open("queue.txt", "w", encoding="utf-8") as file:
             file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
