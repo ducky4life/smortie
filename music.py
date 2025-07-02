@@ -476,10 +476,13 @@ async def playjp(ctx):
         "YOASOBI", "Rokudenashi", "tuki", "ヨルシカ"
     ]
 
-    for artist in artists:
-        songs = await search_songs("artist", artist)
+    for i in range(0, len(artists)-1):
+        songs = await search_songs("artist", artists[i])
         queue = "\n".join(songs)
-        await edit_queue_file("append", queue)
+        if i != 0:
+            await edit_queue_file("append", queue)
+        else:
+            await edit_queue_file("overwrite", queue)
 
     msg = await view_queue_file() 
     await send_codeblock(ctx, msg)
