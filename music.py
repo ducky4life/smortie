@@ -130,9 +130,12 @@ async def view_queue_file():
 
 async def remove_top_newline():
     with open("queue.txt", encoding="utf-8") as file:
-        if file.startswith("\n"):
-            file = file[1:]
-    return file
+        msg = ""
+        for row in file:
+            msg += row
+        if msg.startswith("\n"):
+            msg = msg[1:]
+    return msg
 # endregion
 
 
