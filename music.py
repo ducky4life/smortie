@@ -119,6 +119,14 @@ async def edit_queue_file(mode, queue):
     elif mode == "overwrite":
         with open("queue.txt", "w", encoding="utf-8") as file:
             file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
+
+async def view_queue_file():
+    with open("queue.txt", encoding="utf-8") as queue_file:
+        msg = ""
+        for row in queue_file:
+            if row != "\n":
+                msg += row
+        return msg
 # endregion
 
 
@@ -279,12 +287,8 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
                 await interaction.response.edit_message(content='i sing next song', view=None)
             @discord.ui.button(label='queue', style=discord.ButtonStyle.secondary)
             async def displayqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-                with open("queue.txt", encoding="utf-8") as queue_file:
-                    msg = ""
-                    for row in queue_file:
-                        if row != "\n":
-                            msg += row
-                    await interaction.response.send_message(f"```{msg[:1993]}```", view=QueueButtons(timeout=None))
+                msg = await view_queue_file()
+                await interaction.response.send_message(f"```{msg[:1993]}```", view=QueueButtons(timeout=None))
             @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
             async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 await voice_client.disconnect()
@@ -452,6 +456,23 @@ async def playspotify(ctx, playlist=None):
 
 
 
+@client.hybrid_command(description="imports all jp songs")
+async def playjp(ctx):
+
+    artists = [
+        "YOASOBI", "Rokudenashi", "tuki", "ヨルシカ"
+    ]
+
+    for artist in artists:
+        songs = await search_songs("artist", artist)
+        queue = "\n".join(songs)
+        await write_to_queue_file(ctx, "append", queue)
+
+    msg = await view_queue_file() 
+    await send_codeblock(ctx, msg)
+
+
+
 @client.hybrid_command(aliases=['playlist'])
 @app_commands.describe(playlist="wat u si")
 async def playlists(ctx, *, playlist=None):
@@ -513,12 +534,8 @@ async def queue(ctx):
             await edit_queue_file("append", interaction.message.content)
             await interaction.response.send_message("i tak the q, n eat it")
 
-    with open("queue.txt", encoding="utf-8") as queue_file:
-        msg = ""
-        for row in queue_file:
-            if row != "\n":
-                msg += row
-        await send_codeblock(ctx, msg, view=QueueButtons(timeout=None))
+    msg = await view_queue_file()
+    await send_codeblock(ctx, msg, view=QueueButtons(timeout=None))
 
 
 
