@@ -466,7 +466,7 @@ async def playjp(ctx):
     for artist in artists:
         songs = await search_songs("artist", artist)
         queue = "\n".join(songs)
-        await edit_queue_file(ctx, "append", queue)
+        await edit_queue_file("append", queue)
 
     msg = await view_queue_file() 
     await send_codeblock(ctx, msg)
