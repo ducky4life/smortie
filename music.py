@@ -140,15 +140,6 @@ async def view_queue_file():
             if row != "\n":
                 msg += row
         return msg
-
-async def remove_top_newline():
-    with open("queue.txt", encoding="utf-8") as file:
-        msg = ""
-        for row in file:
-            msg += row
-        if msg.startswith("\n"):
-            msg = msg[1:]
-    await edit_queue_file("overwrite", msg)
 # endregion
 
 
@@ -250,7 +241,6 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
     # actual playing code
     voice_client = await channel.connect()
     dupe_music_files_2 = music_files.copy()
-    await remove_top_newline()
 
     for i in range(len(music_files)):
         music_files = [file.replace("\\", '/') for file in music_files]
