@@ -125,7 +125,7 @@ async def edit_queue_file(mode, queue):
         with open("queue.txt", "a+", encoding="utf-8") as file:
             current_file = []
             current_file = [current_file.append(row) for row in file]
-            if current_file != "":
+            if current_file != []:
                 file.write("\n" + queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
             else:
                 file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
