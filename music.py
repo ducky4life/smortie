@@ -135,7 +135,7 @@ async def remove_top_newline():
             msg += row
         if msg.startswith("\n"):
             msg = msg[1:]
-    return msg
+    await edit_queue_file("overwrite", msg)
 # endregion
 
 
