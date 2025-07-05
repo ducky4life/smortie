@@ -22,8 +22,8 @@ load_dotenv()
 bot_prefix = "smort"
 codespace = "docker"
 
-if os.getenv("WORKSPACE") == "actions":
-    codespace = "actions"
+if os.getenv("WORKSPACE") == "actions" or os.getenv("WORKSPACE") == "windows":
+    codespace = os.getenv('WORKSPACE')
 
 if codespace == "github":
     rootpath = "/workspaces"
@@ -42,7 +42,6 @@ if bot_prefix == "smort":
     token = os.getenv("SMORT_TOKEN")
 else:
     token = os.getenv("ROBO_TOKEN")
-
 
 client = commands.Bot(
     command_prefix=[f"!{bot_prefix} ", f"!{bot_prefix} "],
@@ -125,9 +124,9 @@ async def write_to_queue_file(ctx, mode, queue):
 async def edit_queue_file(mode, queue):
     if mode == "append":
         with open("queue.txt", "a+", encoding="utf-8") as file:
-            current_file = []
-            current_file = [current_file.append(row) for row in file]
-            if current_file != []:
+            file.seek(0)
+            current_file = file.read().strip()
+            if current_file != "":
                 file.write("\n" + queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
             else:
                 file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
@@ -444,7 +443,15 @@ async def playartist(ctx, artist=None):
 
 
 @client.hybrid_command(description="imports songs from spotify playlist")
-async def playspotify(ctx, playlist=None):
+@app_commands.describe(url="wat link i import", importmode="overwrite the queue or append")
+@app_commands.choices(mode=[
+    app_commands.Choice(name='playlist', value="playlist"),
+    app_commands.Choice(name='track', value="track")
+], importmode=[
+    app_commands.Choice(name='overwrite', value="overwrite"),
+    app_commands.Choice(name='append', value="append")
+])
+async def playspotify(ctx, mode="playlist", url=None, importmode="overwrite"):
 
     client_id = os.getenv("SPOTIFY_CLIENT_ID")
     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
@@ -453,21 +460,30 @@ async def playspotify(ctx, playlist=None):
     queue_list = []
     sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))
 
-    results = sp.playlist_tracks(playlist, limit=100)
-    tracks = results['items']
-    while results['next']:
-        results = sp.next(tracks)
-        tracks.extend(results['items'])
+    if mode == "playlist":
+        results = sp.playlist_tracks(url, limit=100)
+        tracks = results['items']
+        while results['next']:
+            results = sp.next(tracks)
+            tracks.extend(results['items'])
+
+    else:
+        results = sp.track(url)
+        tracks = [results]
 
     for song in tracks:
-        search_result = await search_songs("title", song['track']['name'])
+        if mode == "playlist":
+            track_name = song['track']['name']
+        else:
+            track_name = song['name']
+        search_result = await search_songs("title", track_name)
         try:
             queue_list.append(search_result[0])
         except IndexError:
             continue
     queue = "\n".join(queue_list)
     await send_codeblock(ctx, queue)
-    await write_to_queue_file(ctx, "overwrite", queue)
+    await write_to_queue_file(ctx, importmode, queue)
 
 
 
