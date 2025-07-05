@@ -433,24 +433,6 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
 
 
 
-@client.hybrid_command(description="imports a song from a youtube link")
-@app_commands.describe(url="wat link i import")
-async def playyoutube(ctx, url=None):
-    await ctx.defer()
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-        }],
-        'outtmpl': 'playlists/local/%(title)s.%(ext)s'
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
-        filename = ydl.prepare_filename(info).replace(".webm", ".mp3")
-    await ctx.send(f"saved it as `{filename}`, pls use `/playfile` to play it")
-
-
 @client.hybrid_command(description="imports all songs of the artist")
 async def playartist(ctx, artist=None):
 
@@ -489,6 +471,25 @@ async def playspotify(ctx, playlist=None):
 
 
 
+@client.hybrid_command(description="imports a song from a youtube link")
+@app_commands.describe(url="wat link i import")
+async def playyoutube(ctx, url=None):
+    await ctx.defer()
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+        }],
+        'outtmpl': 'playlists/local/%(title)s.%(ext)s'
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        filename = ydl.prepare_filename(info).replace(".webm", ".mp3").replace("\\", "/").replace("playlists", "")
+    await ctx.send(f"saved it as `{filename}`, pls use `/playfile` to play it")
+
+
+    
 @client.hybrid_command(description="imports all jp songs")
 async def playjp(ctx):
 
