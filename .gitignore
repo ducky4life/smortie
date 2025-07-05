@@ -4,4 +4,4 @@
 /__pycache__
 queue.txt
 .cache
-/playlists/local
+/playlists/local/*
