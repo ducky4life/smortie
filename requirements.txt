@@ -6,3 +6,4 @@ pynacl
 python-dotenv
 waitress
 spotipy
+yt_dlp

@@ -12,6 +12,7 @@ import music_tag
 from dotenv import load_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+import yt_dlp
 
 intents = discord.Intents.all()
 intents.members = True
@@ -90,6 +91,7 @@ async def sleep_until_song_ends(ctx):
 async def search_songs(filter:str, query:str):
     all_songs = ""
     songs = []
+    query = query.strip("```").replace("\\", "/")
     for path, subdirs, files in os.walk(f"{rootpath}/smortie/playlists"):
         for name in files:
             all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"{rootpath}/smortie/playlists").replace("\\", "/")
@@ -429,6 +431,24 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
     await voice_client.disconnect()
     await ctx.send("bai bai")
 
+
+
+@client.hybrid_command(description="imports a song from a youtube link")
+@app_commands.describe(url="wat link i import")
+async def playyoutube(ctx, url=None):
+    await ctx.defer()
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+        }],
+        'outtmpl': 'playlists/local/%(title)s.%(ext)s'
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        filename = ydl.prepare_filename(info).replace(".webm", ".mp3")
+    await ctx.send(f"saved it as `{filename}`, pls use `/playfile` to play it")
 
 
 @client.hybrid_command(description="imports all songs of the artist")
