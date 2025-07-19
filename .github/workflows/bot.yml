@@ -31,7 +31,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        submodules: recursive
+        submodules: false
+    - uses: actions/checkout@v4
+      with:
+        repository: ducky4life/smortie-playlists
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
