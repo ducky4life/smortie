@@ -13,14 +13,15 @@ from dotenv import load_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import yt_dlp
+from dyslexicloglog import Autocorrector
 
 intents = discord.Intents.all()
 intents.members = True
 
 load_dotenv()
 
-bot_prefix = "smort"
-codespace = "docker"
+bot_prefix = "robo"
+codespace = "github"
 
 if os.getenv("WORKSPACE") == "actions" or os.getenv("WORKSPACE") == "windows":
     codespace = os.getenv('WORKSPACE')
@@ -46,6 +47,8 @@ else:
 client = commands.Bot(
     command_prefix=[f"!{bot_prefix} ", f"!{bot_prefix} "],
     intents=intents)
+
+ac = Autocorrector()
 
 @client.event
 async def on_ready():
@@ -86,6 +89,24 @@ async def sleep_until_song_ends(ctx):
     voice_client = ctx.guild.voice_client
     while voice_client.is_playing() or voice_client.is_paused():
         await asyncio.sleep(1)
+
+async def autocorrector(query:str, number:int=1):
+    input_list = query.split(",")
+    output = []
+    if number not in [1,2,3]:
+        return "please choose a number between 1 to 3 inclusive"
+    
+    ac_results = ac.top3(input_list)
+    print(ac_results)
+
+    for i in range(number):
+        for input in input_list:
+            temp_list = []
+            word_list = ac_results[input.lower()]
+            print(word_list)
+            temp_list.append(word_list[i])
+            output.append(temp_list)
+    return output
 
 async def search_songs(filter:str, query:str):
     all_songs = ""
@@ -606,6 +627,11 @@ async def importqueue(ctx, *, queue:str=None):
 async def appendqueue(ctx, *, queue:str=None):
     await write_to_queue_file(ctx, "append", queue)
 
+@client.hybrid_command()
+async def autocorrect(ctx, query:str="None", *, number:str="1"):
+
+    msg = await autocorrector(query, int(number))
+    await ctx.send(msg)
 
 
 @client.hybrid_command()
