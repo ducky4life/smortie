@@ -20,7 +20,7 @@ intents.members = True
 
 load_dotenv()
 
-bot_prefix = "robo"
+bot_prefix = "smort"
 codespace = "github"
 
 if os.getenv("WORKSPACE") == "actions" or os.getenv("WORKSPACE") == "windows":
