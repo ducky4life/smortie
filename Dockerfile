@@ -18,8 +18,6 @@ COPY keep_alive.py /smortie/keep_alive.py
 
 COPY .env /smortie/.env
 
-# COPY playlists /smortie/playlists/
-
 WORKDIR /smortie
 
 CMD [ "python", "music.py" ]
