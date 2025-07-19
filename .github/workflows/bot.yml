@@ -46,6 +46,7 @@ jobs:
 
     - name: write secrets and make queue.txt
       run: |
+        git submodule foreach git pull
         touch .env
         touch queue.txt
         rm -rf ./playlists/.git
