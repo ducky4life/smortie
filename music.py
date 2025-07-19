@@ -20,8 +20,8 @@ intents.members = True
 
 load_dotenv()
 
-bot_prefix = "smorts"
-codespace = "dockers"
+bot_prefix = "smort"
+codespace = "docker"
 
 if os.getenv("WORKSPACE") == "actions" or os.getenv("WORKSPACE") == "windows":
     codespace = os.getenv('WORKSPACE')
