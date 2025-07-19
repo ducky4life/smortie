@@ -46,6 +46,7 @@ jobs:
 
     - name: write secrets and make queue.txt
       run: |
+        git config pull.rebase false
         git submodule foreach git pull
         touch .env
         touch queue.txt
