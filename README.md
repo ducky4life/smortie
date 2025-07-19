@@ -24,6 +24,7 @@ contact me at ducky4life@duck.com
 - playing a local file (uploaded with /playlocalfile command)
 - playing an imported queue (/play the "continue" playlist)
 - searching for local songs from a spotify playlist and importing to queue (/playspotify)
+- autocorrect search queries (fully automatic, library can be accessed using /autocorrect)
 - master playlist (all files inside /playlists/*)
 - importing/displaying/appending to queue (!smort import, /queue)
 - continuing from where you left off (/play the "continue" playlist)

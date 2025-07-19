@@ -152,6 +152,8 @@ async def ac_search_songs(ctx, filter:str="title", query:str="None"):
     
     return songs
 
+
+
 async def view_queue_file():
     with open("queue.txt", encoding="utf-8") as queue_file:
         msg = ""
@@ -674,8 +676,8 @@ async def resume(ctx):
 
 # region non music stuff
 @client.hybrid_command()
+@app_commands.describe(number="an integer from 1-3 inclusive, displays top n results")
 async def autocorrect(ctx, query:str="None", *, number:str="1"):
-
     msg = await prettify_autocorrector(query, int(number))
     await ctx.send(msg)
 
