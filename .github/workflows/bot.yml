@@ -31,7 +31,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        submodules: true
+        submodules: recursive
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
@@ -48,6 +48,7 @@ jobs:
       run: |
         touch .env
         touch queue.txt
+        rm -rf ./playlists/.git
         echo "SMORT_TOKEN=$TOKEN" >> .env
         echo 'WORKSPACE="actions"' >> .env
         echo "SPOTIFY_CLIENT_ID=$SPOTIFY_CLIENT_ID" >> .env
