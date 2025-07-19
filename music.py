@@ -675,7 +675,7 @@ async def resume(ctx):
     await ctx.send("ok i sing")
 
 # region non music stuff
-@client.hybrid_command()
+@client.hybrid_command(aliases=['ac'])
 @app_commands.describe(number="an integer from 1-3 inclusive, displays top n results")
 async def autocorrect(ctx, query:str="None", *, number:str="1"):
     msg = await prettify_autocorrector(query, int(number))
