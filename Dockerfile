@@ -12,9 +12,9 @@ COPY .env /smortie/.env
 
 COPY requirements.txt /smortie/requirements.txt
 
-RUN git clone --depth=1 https://github.com/ducky4life/smortie-playlists.git /smortie/playlists
+RUN apt update && apt install -y ffmpeg git
 
-RUN apt update && apt install -y ffmpeg
+RUN git clone --depth=1 https://github.com/ducky4life/smortie-playlists.git /smortie/playlists
 
 RUN python -m pip install --upgrade pip
 
