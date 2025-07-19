@@ -10,6 +10,8 @@ i wont give documentation if you'd like to use it, just do the token stuff in mu
 
 supports playing 24/7, from a playlist, singular song, shuffling, master playlist with all songs in all playlists, and more that I don't remember.
 
+clone using `git clone -b main --single-branch https://github.com/ducky4life/smortie.git`
+
 run it in github codespaces or actions. its not safe.
 
 contact me at ducky4life@duck.com
