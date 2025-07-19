@@ -20,8 +20,8 @@ intents.members = True
 
 load_dotenv()
 
-bot_prefix = "smort"
-codespace = "docker"
+bot_prefix = "smorts"
+codespace = "dockers"
 
 if os.getenv("WORKSPACE") == "actions" or os.getenv("WORKSPACE") == "windows":
     codespace = os.getenv('WORKSPACE')
@@ -49,6 +49,7 @@ client = commands.Bot(
     intents=intents)
 
 ac = Autocorrector()
+
 
 @client.event
 async def on_ready():
@@ -92,27 +93,39 @@ async def sleep_until_song_ends(ctx):
 
 async def autocorrector(query:str, number:int=1):
     input_list = query.split(",")
-    output = []
     if number not in [1,2,3]:
         return "please choose a number between 1 to 3 inclusive"
     
     ac_results = ac.top3(input_list)
-    print(ac_results)
 
-    for i in range(number):
-        for input in input_list:
-            temp_list = []
-            word_list = ac_results[input.lower()]
-            print(word_list)
-            temp_list.append(word_list[i])
-            output.append(temp_list)
-    return output
+    if number == 3:
+        return ac_results
+    else:
+        for key in ac_results:
+            for i in range(3-number):
+                ac_results[key].pop(-1)
+        return ac_results
 
-async def search_songs(filter:str, query:str):
+async def prettify_autocorrector(query:str, number:int=1):
+    ac_results = await autocorrector(query, number)
+    msg = ""
+    for key in ac_results:
+        output = []
+        word_list = ac_results[key.lower()]
+
+        for i in range(1, len(word_list)+1):
+            output.append(f"{i}. {word_list[i-1]}")
+        msg += f'`{key}`: {" ".join(output)}\n'
+    return msg
+
+
+
+async def search_songs(filter:str="title", query:str="None"):
     all_songs = ""
     songs = []
     query = query.strip("```").replace("\\", "/")
     for path, subdirs, files in os.walk(f"{rootpath}/smortie/playlists"):
+        subdirs[:] = [d for d in subdirs if d != ".git"]
         for name in files:
             all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"{rootpath}/smortie/playlists").replace("\\", "/")
     all_songs = all_songs.split("?")
@@ -126,6 +139,18 @@ async def search_songs(filter:str, query:str):
         songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['artist']).lower()]
 
     return(songs)
+
+
+async def ac_search_songs(ctx, filter:str="title", query:str="None"):
+    songs = await search_songs(filter, query)
+
+    if songs == []:
+        ac_query = await autocorrector(query, 1)
+        ac_word = ac_query[query][0]
+        await ctx.send(f"perhaps you meant {ac_word}?")
+        songs = await search_songs(filter, ac_word)
+    
+    return songs
 
 async def view_queue_file():
     with open("queue.txt", encoding="utf-8") as queue_file:
@@ -167,7 +192,7 @@ async def view_queue_file():
 
 # music stuffs
 
-playlist_choices = [app_commands.Choice(name="continue", value="continue"), app_commands.Choice(name="master", value="master")]
+playlist_choices = [app_commands.Choice(name="continue", value="continue"), app_commands.Choice(name="master", value="master"), app_commands.Choice(name="local", value="local")]
 for playlist in os.listdir(f"{rootpath}/smortie/playlists"):
     if "." not in playlist:
         playlist_choices.append(app_commands.Choice(name=playlist, value=playlist))
@@ -211,6 +236,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
     if playlist == "master":
         music_files = ""
         for path, subdirs, files in os.walk(folder_path):
+            subdirs[:] = [d for d in subdirs if d != ".git"]
             for name in files:
                 if not name in music_files:
                     music_files += f'{os.path.join(path, name)}?'.removeprefix(folder_path)
@@ -361,7 +387,7 @@ async def play24(ctx, *, channel: discord.VoiceChannel=None, file="sheep.mp3"):
     if channel != None:
         channel_id = channel.id
     folder_path = f"{rootpath}/smortie/playlists"
-    song = await search_songs("title", file)
+    song = await ac_search_songs(ctx, "title", file)
     file_path = f"{folder_path}/{song[0]}"
 
     time = await get_track_duration(song[0], file_path)
@@ -382,7 +408,7 @@ async def play24(ctx, *, channel: discord.VoiceChannel=None, file="sheep.mp3"):
 async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     channel_id = channel.id
     folder_path = f"{rootpath}/smortie/playlists"
-    song = await search_songs("title", file)
+    song = await ac_search_songs(ctx, "title", file)
     file_path = f"{folder_path}/{song[0]}"
     f = music_tag.load_file(file_path)
 
@@ -456,7 +482,7 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
 @client.hybrid_command(description="imports all songs of the artist")
 async def playartist(ctx, artist=None):
 
-    songs = await search_songs("artist", artist)
+    songs = await ac_search_songs(ctx, "artist", artist)
     queue = "\n".join(songs)
     await send_codeblock(ctx, queue)
     await write_to_queue_file(ctx, "overwrite", queue)
@@ -497,7 +523,7 @@ async def playspotify(ctx, mode="playlist", url=None, importmode="overwrite"):
             track_name = song['track']['name']
         else:
             track_name = song['name']
-        search_result = await search_songs("title", track_name)
+        search_result = await ac_search_songs(ctx, "title", track_name)
         try:
             queue_list.append(search_result[0])
         except IndexError:
@@ -538,7 +564,7 @@ async def playjp(ctx):
     ]
 
     for i in range(0, len(artists)-1):
-        songs = await search_songs("artist", artists[i])
+        songs = await ac_search_songs(ctx, "artist", artists[i])
         queue = "\n".join(songs)
         if i != 0:
             await edit_queue_file("append", queue)
@@ -589,7 +615,7 @@ async def search(ctx, filter="title", query=None):
             await edit_queue_file("append", interaction.message.content)
             await interaction.response.send_message("i tak the q, n eat it")
 
-    songs = await search_songs(filter, query)
+    songs = await ac_search_songs(ctx, filter, query)
 
     msg = "\n".join(songs)
     await send_codeblock(ctx, msg, view=QueueButtons(timeout=None))
@@ -627,12 +653,6 @@ async def importqueue(ctx, *, queue:str=None):
 async def appendqueue(ctx, *, queue:str=None):
     await write_to_queue_file(ctx, "append", queue)
 
-@client.hybrid_command()
-async def autocorrect(ctx, query:str="None", *, number:str="1"):
-
-    msg = await autocorrector(query, int(number))
-    await ctx.send(msg)
-
 
 @client.hybrid_command()
 async def stop(ctx):
@@ -653,6 +673,13 @@ async def resume(ctx):
     await ctx.send("ok i sing")
 
 # region non music stuff
+@client.hybrid_command()
+async def autocorrect(ctx, query:str="None", *, number:str="1"):
+
+    msg = await prettify_autocorrector(query, int(number))
+    await ctx.send(msg)
+
+
 @client.hybrid_command(aliases=['sheep'])
 async def shaun_the_sheep(ctx):
     await ctx.send("He’s Shaun the Sheep\nHe’s Shaun the Sheep\nHe even mucks about with those who cannot bleat\nKeep it in Mind,\nHe's One of a Kind\nOh life's a treat with Shaun the Sheep\nHe's Shaun the Sheep (He's Shaun the Sheep.)\nHe's Shaun the Sheep (He's Shaun the Sheep.)\nHe doesn't miss a trick or ever lose a beat (lose a beat.)\nPerhaps one day, you'll find a way to come and meet with Shaun the Sheep.\nOh, come and bleat with Shaun the Sheep! (Baaaaaaaaaaaaaaaaaaaaaaaaaa!)")
