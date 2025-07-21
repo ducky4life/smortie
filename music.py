@@ -695,9 +695,20 @@ async def baa(ctx, *, message=None):
     await ctx.message.delete()
     await ctx.send(message)
 
+bot_id_list = [1186326404267266059, 839794863591260182, 944245571714170930]
+
 @client.event
 async def on_message(message: discord.Message):
     await client.process_commands(message)
+    if message.channel.id == 1396923821268799649 and message.author.id not in bot_id_list:
+        msg = []
+
+        msg_list = message.content.split(" ")
+        for word in msg_list:
+            ac_query = await autocorrector(word, 1, " ")
+            ac_word = ac_query[word][0] if len(word) != 1 else word
+            msg.append(ac_word)
+        await message.channel.send(" ".join(msg))
     if codespace == "actions":
         if "!smortie" in message.content.lower():
             await asyncio.sleep(2)
