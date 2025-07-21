@@ -20,24 +20,11 @@ intents.members = True
 
 load_dotenv()
 
-bot_prefix = "smort"
+bot_prefix = "smorts"
 codespace = "docker"
 
-if os.getenv("WORKSPACE") == "actions" or os.getenv("WORKSPACE") == "windows":
+if os.getenv("WORKSPACE") == "actions":
     codespace = os.getenv('WORKSPACE')
-
-if codespace == "github":
-    rootpath = "/workspaces"
-elif codespace == "actions":
-    rootpath = "/home/runner/work/smortie"
-elif codespace == "linux":
-    rootpath = "/home/ducky/code"
-    bot_prefix = "ysis"
-elif codespace == "docker":
-    rootpath = ""
-    bot_prefix = "ysis"
-else:
-    rootpath = "c:/Users/ducky/Documents"
 
 if bot_prefix == "smort":
     token = os.getenv("SMORT_TOKEN")
@@ -60,36 +47,34 @@ async def on_ready():
 
 
 # region helper functions
-async def send_codeblock(ctx, msg, *, view=None):
-    if len(msg) > 1993:
-        if len(msg) > 3993:
-            first_msg = msg[:1993]
-            second_msg = msg[1993:3987]
-            third_msg = msg[3987:].strip()
-            await ctx.send(f"```{first_msg}```")
-            await ctx.send(f"```{second_msg}```")
-            await ctx.send(f"```{third_msg}```")
-        else:
-            first_msg = msg[:1993]
-            second_msg = msg[1993:].strip()
-            await ctx.send(f"```{first_msg}```")
-            await ctx.send(f"```{second_msg}```")
+async def view_queue_file():
+    with open("queue.txt", encoding="utf-8") as queue_file:
+        msg = ""
+        for row in queue_file:
+            if row != "\n":
+                msg += row
+        return msg
+
+async def write_to_queue_file(ctx, mode, queue):
+    if queue == None:
+        await ctx.send("no queue given")
     else:
-        await ctx.send(f"```{msg}```", view=view)
+        await edit_queue_file(mode, queue)
+        await ctx.send("i tak the q, n eat it")
 
+async def edit_queue_file(mode, queue):
+    if mode == "append":
+        with open("queue.txt", "a+", encoding="utf-8") as file:
+            file.seek(0)
+            current_file = file.read().strip()
+            if current_file != "":
+                file.write("\n" + queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
+            else:
+                file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
+    elif mode == "overwrite":
+        with open("queue.txt", "w", encoding="utf-8") as file:
+            file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
 
-async def get_track_duration(file, full_file_path):
-    if file.endswith(".mp3"):
-        time = MP3(full_file_path).info.length + 3
-    else:
-        time = MP4(full_file_path).info.length + 3
-    return(time)
-
-
-async def sleep_until_song_ends(ctx):
-    voice_client = ctx.guild.voice_client
-    while voice_client.is_playing() or voice_client.is_paused():
-        await asyncio.sleep(1)
 
 async def autocorrector(query:str, number:int=1, separator:str=" "):
     input_list = query.split(separator)
@@ -124,10 +109,10 @@ async def search_songs(filter:str="title", query:str="None"):
     all_songs = ""
     songs = []
     query = query.strip("```").replace("\\", "/")
-    for path, subdirs, files in os.walk(f"{rootpath}/smortie/playlists"):
+    for path, subdirs, files in os.walk(f"playlists"):
         subdirs[:] = [d for d in subdirs if d != ".git"]
         for name in files:
-            all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"{rootpath}/smortie/playlists").replace("\\", "/")
+            all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"playlists").replace("\\", "/")
     all_songs = all_songs.split("?")
     all_songs.pop(-1)
 
@@ -141,6 +126,21 @@ async def search_songs(filter:str="title", query:str="None"):
     return(songs)
 
 
+async def get_track_duration(file, full_file_path):
+    if file.endswith(".mp3"):
+        time = MP3(full_file_path).info.length + 3
+    else:
+        time = MP4(full_file_path).info.length + 3
+    return(time)
+
+
+async def sleep_until_song_ends(ctx):
+    voice_client = ctx.guild.voice_client
+    while voice_client.is_playing() or voice_client.is_paused():
+        await asyncio.sleep(1)
+
+
+
 async def ac_search_songs(ctx, filter:str="title", query:str="None"):
     songs = await search_songs(filter, query)
 
@@ -152,50 +152,29 @@ async def ac_search_songs(ctx, filter:str="title", query:str="None"):
     
     return songs
 
-
-
-async def view_queue_file():
-    with open("queue.txt", encoding="utf-8") as queue_file:
-        msg = ""
-        for row in queue_file:
-            if row != "\n":
-                msg += row
-        return msg
-
-async def write_to_queue_file(ctx, mode, queue):
-    if queue == None:
-        await ctx.send("no queue given")
+async def send_codeblock(ctx, msg, *, view=None):
+    if len(msg) > 1993:
+        if len(msg) > 3993:
+            first_msg = msg[:1993]
+            second_msg = msg[1993:3987]
+            third_msg = msg[3987:].strip()
+            await ctx.send(f"```{first_msg}```")
+            await ctx.send(f"```{second_msg}```")
+            await ctx.send(f"```{third_msg}```")
+        else:
+            first_msg = msg[:1993]
+            second_msg = msg[1993:].strip()
+            await ctx.send(f"```{first_msg}```")
+            await ctx.send(f"```{second_msg}```")
     else:
-        await edit_queue_file(mode, queue)
-        await ctx.send("i tak the q, n eat it")
-
-async def edit_queue_file(mode, queue):
-    if mode == "append":
-        with open("queue.txt", "a+", encoding="utf-8") as file:
-            file.seek(0)
-            current_file = file.read().strip()
-            if current_file != "":
-                file.write("\n" + queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
-            else:
-                file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
-    elif mode == "overwrite":
-        with open("queue.txt", "w", encoding="utf-8") as file:
-            file.write(queue.strip("```").replace("\\", "/").replace(".mp3 ", ".mp3\n").replace(".m4a ", ".m4a\n"))
-
-async def view_queue_file():
-    with open("queue.txt", encoding="utf-8") as queue_file:
-        msg = ""
-        for row in queue_file:
-            if row != "\n":
-                msg += row
-        return msg
+        await ctx.send(f"```{msg}```", view=view)
 # endregion
 
 
 # music stuffs
 
 playlist_choices = [app_commands.Choice(name="continue", value="continue"), app_commands.Choice(name="master", value="master"), app_commands.Choice(name="local", value="local")]
-for playlist in os.listdir(f"{rootpath}/smortie/playlists"):
+for playlist in os.listdir(f"playlists"):
     if "." not in playlist:
         playlist_choices.append(app_commands.Choice(name=playlist, value=playlist))
 
@@ -207,28 +186,28 @@ for playlist in os.listdir(f"{rootpath}/smortie/playlists"):
 ])
 async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
 
-    folder_path = f"{rootpath}/smortie/playlists/{playlist}"
+    folder_path = f"playlists/{playlist}"
 
     # region check if playlist exists
     if playlist == "master":
         await ctx.send("ok playing all songs")
-        folder_path = f"{rootpath}/smortie/playlists"
+        folder_path = f"playlists"
     elif playlist == "continue":
         await ctx.send("ok i continue")
-        folder_path = f"{rootpath}/smortie/playlists"
+        folder_path = f"playlists"
     elif playlist == None:
         await ctx.send("no playlist? ok i play queue")
-        folder_path = f"{rootpath}/smortie/playlists/queue"
+        folder_path = f"playlists/queue"
         playlist = "queue"
 
     elif os.path.isdir(folder_path) == False:
         await ctx.send("umm i cant find the playlist :( (i play queue)")
-        folder_path = f"{rootpath}/smortie/playlists/queue"
+        folder_path = f"playlists/queue"
         playlist = "queue"
 
     else:
         await ctx.send(f"found ur playlist yay!!! playing {playlist}")
-        folder_path = f"{rootpath}/smortie/playlists/{playlist}"
+        folder_path = f"playlists/{playlist}"
     # endregion
 
     music_files = os.listdir(folder_path)
@@ -388,7 +367,7 @@ async def play24(ctx, *, channel: discord.VoiceChannel=None, file="sheep.mp3"):
     channel_id = 1132046013360779434
     if channel != None:
         channel_id = channel.id
-    folder_path = f"{rootpath}/smortie/playlists"
+    folder_path = f"playlists"
     song = await ac_search_songs(ctx, "title", file)
     file_path = f"{folder_path}/{song[0]}"
 
@@ -409,7 +388,7 @@ async def play24(ctx, *, channel: discord.VoiceChannel=None, file="sheep.mp3"):
 @client.hybrid_command(description="plays a file once")
 async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     channel_id = channel.id
-    folder_path = f"{rootpath}/smortie/playlists"
+    folder_path = f"playlists"
     song = await ac_search_songs(ctx, "title", file)
     file_path = f"{folder_path}/{song[0]}"
     f = music_tag.load_file(file_path)
@@ -447,7 +426,7 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
     await ctx.defer()
 
     channel_id = channel.id
-    folder_path = f"{rootpath}/smortie/playlists/local"
+    folder_path = f"playlists/local"
     file_path = f"{folder_path}/{file.filename}"
     if not os.path.exists("playlists/local"):
         os.makedirs("playlists/local")
@@ -583,12 +562,12 @@ async def playjp(ctx):
 async def playlists(ctx, *, playlist=None):
 
     if playlist == None:
-        playlists = os.listdir(f"{rootpath}/smortie/playlists")
+        playlists = os.listdir(f"playlists")
         playlists = '\n'.join(playlists)
         await ctx.send(f"playlists:\n{playlists}\n\nuse !smort play <playlist> to play a playlist, or !smort playlists <playlist> to list the songs in a playlist")
   
     else:
-        songs = os.listdir(f"{rootpath}/smortie/playlists/{playlist}")
+        songs = os.listdir(f"playlists/{playlist}")
         new_songs: str = ""
         for song in songs:
             f = music_tag.load_file(f"playlists/{playlist}/{song}")
