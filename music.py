@@ -91,8 +91,8 @@ async def sleep_until_song_ends(ctx):
     while voice_client.is_playing() or voice_client.is_paused():
         await asyncio.sleep(1)
 
-async def autocorrector(query:str, number:int=1):
-    input_list = query.split(",")
+async def autocorrector(query:str, number:int=1, separator:str=" "):
+    input_list = query.split(separator)
     if number not in [1,2,3]:
         return "please choose a number between 1 to 3 inclusive"
     
@@ -106,8 +106,8 @@ async def autocorrector(query:str, number:int=1):
                 ac_results[key].pop(-1)
         return ac_results
 
-async def prettify_autocorrector(query:str, number:int=1):
-    ac_results = await autocorrector(query, number)
+async def prettify_autocorrector(query:str, number:int=1, separator:str=" "):
+    ac_results = await autocorrector(query, number, separator)
     msg = ""
     for key in ac_results:
         output = []
