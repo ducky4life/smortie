@@ -110,9 +110,9 @@ async def search_songs(filter:str="title", query:str="None"):
     songs = []
     query = query.strip("```").replace("\\", "/")
     for path, subdirs, files in os.walk(f"playlists"):
-        subdirs[:] = [d for d in subdirs if d != ".git"]
         for name in files:
-            all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"playlists").replace("\\", "/")
+            if ".git" not in path:
+                all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"playlists").replace("\\", "/")
     all_songs = all_songs.split("?")
     all_songs.pop(-1)
 
@@ -504,7 +504,7 @@ async def playspotify(ctx, mode="playlist", url=None, importmode="overwrite"):
             track_name = song['track']['name']
         else:
             track_name = song['name']
-        search_result = await ac_search_songs(ctx, "title", track_name)
+        search_result = await search_songs("title", track_name)
         try:
             queue_list.append(search_result[0])
         except IndexError:
@@ -563,6 +563,10 @@ async def playlists(ctx, *, playlist=None):
 
     if playlist == None:
         playlists = os.listdir(f"playlists")
+        try:
+            playlists.remove(".git")
+        except:
+            pass
         playlists = '\n'.join(playlists)
         await ctx.send(f"playlists:\n{playlists}\n\nuse !smort play <playlist> to play a playlist, or !smort playlists <playlist> to list the songs in a playlist")
   
