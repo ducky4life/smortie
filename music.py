@@ -674,7 +674,7 @@ async def baa(ctx, *, message=None):
     await ctx.message.delete()
     await ctx.send(message)
 
-bot_id_list = [1186326404267266059, 839794863591260182, 944245571714170930]
+bot_id_list = [1186326404267266059, 839794863591260182, 944245571714170930, 1396935480284680334]
 
 @client.event
 async def on_message(message: discord.Message):
@@ -685,7 +685,7 @@ async def on_message(message: discord.Message):
             await message.channel.send("bru mik botol clon")
         elif message.content.startswith('!smort'):
             return
-        elif message.author.id != 1186326404267266059 and message.author.id != 839794863591260182:
+        elif message.author.id not in bot_id_list:
             if "baa" in message.content.lower():
                 await message.channel.send("Baaaaaaaa!")
             if "help mi" in message.content.lower():
