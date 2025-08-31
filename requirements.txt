@@ -1,4 +1,5 @@
 flask
+pyflakes
 discord
 mutagen
 music_tag
