@@ -10,7 +10,9 @@ RUN pip install -r requirements.txt
 
 RUN apt update && apt install -y ffmpeg git
 
-RUN git clone --depth=1 https://github.com/ducky4life/smortie-playlists.git /playlists
+COPY /playlists /playlists
+
+# RUN git clone --depth=1 https://github.com/ducky4life/smortie-playlists.git /playlists
 
 COPY music.py keep_alive.py .env /
 

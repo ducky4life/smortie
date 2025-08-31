@@ -26,7 +26,7 @@ codespace = "docker"
 if os.getenv("WORKSPACE") == "actions":
     codespace = os.getenv('WORKSPACE')
 
-if bot_prefix == "smort":
+if bot_prefix == "smort" and codespace != "docker":
     token = os.getenv("SMORT_TOKEN")
 else:
     token = os.getenv("ROBO_TOKEN")
