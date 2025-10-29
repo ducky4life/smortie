@@ -179,14 +179,18 @@ for playlist in os.listdir(f"playlists"):
         playlist_choices.append(app_commands.Choice(name=playlist, value=playlist))
 
 @client.hybrid_command(description="plays a playlist given a vc id and playlist name", brief="plays a playlist")
-@app_commands.describe(playlist="wat i play, continue if imported queue, master if all songs in all playlists", shuffle="say shuffle if yes")
+@app_commands.describe(playlist="wat i play, continue if imported queue, master if all songs in all playlists", shuffle="say shuffle if yes", loop="say loop if yes")
 @app_commands.choices(playlist=playlist_choices, shuffle=[
     app_commands.Choice(name='shuffle', value="shuffle"),
     app_commands.Choice(name='no', value="no")
+], loop=[
+    app_commands.Choice(name='loop', value="loop"),
+    app_commands.Choice(name='no', value="no")
 ])
-async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
+async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None, loop=None):
 
     folder_path = f"playlists/{playlist}"
+    loop_playlist = False
 
     # region check if playlist exists
     if playlist == "master":
@@ -232,12 +236,16 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
     # endregion
 
 
-    # region check if shuffle is enabled
+    # region check if shuffle/loop is enabled
     if shuffle == None:
         await ctx.send("no shuffle mode, i go alphabetical")
     elif shuffle.lower() == "shuffle":
         await ctx.send("shuffle mode go brr")
         random.shuffle(music_files)
+
+    if loop.lower() == "loop":
+        await ctx.send("ok i loop")
+        loop_playlist = True
     # endregion
 
 
@@ -340,7 +348,9 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None):
         voice_client.play(discord.FFmpegPCMAudio(file_to_play))
         await ctx.send(f"playing {f['title']} - {f['artist']}", silent=True, view=Buttons(timeout=None))
         if i < len(music_files)-1:
-            queue_list.pop(0)
+            popped = queue_list.pop(0)
+        if loop_playlist:
+            queue_list.append(popped)
         with open("queue.txt", "w", encoding="utf-8") as file:
             file.write("\n".join(queue_list))
 
