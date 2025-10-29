@@ -349,8 +349,8 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None, 
         await ctx.send(f"playing {f['title']} - {f['artist']}", silent=True, view=Buttons(timeout=None))
         if i < len(music_files)-1:
             popped = queue_list.pop(0)
-        if loop_playlist:
-            queue_list.append(popped)
+            if loop_playlist:
+                queue_list.append(popped)
         with open("queue.txt", "w", encoding="utf-8") as file:
             file.write("\n".join(queue_list))
 
