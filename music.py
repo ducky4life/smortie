@@ -187,7 +187,7 @@ for playlist in os.listdir(f"playlists"):
     app_commands.Choice(name='loop', value="loop"),
     app_commands.Choice(name='no', value="no")
 ])
-async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None, loop=None):
+async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None, loop="no"):
 
     folder_path = f"playlists/{playlist}"
     loop_playlist = False
