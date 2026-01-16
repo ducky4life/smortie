@@ -116,7 +116,7 @@ async def search_songs(filter:str="title", query:str="None"):
     all_songs = all_songs.split("?")
     all_songs.pop(-1)
 
-    song_dicts = [{"title": music_tag.load_file(f"playlists/{song}")['title'], "artist": music_tag.load_file(f"playlists/{song}")['artist'], "artist": music_tag.load_file(f"playlists/{song}")['album'], "file_path": song} for song in all_songs]
+    song_dicts = [{"title": music_tag.load_file(f"playlists/{song}")['title'], "artist": music_tag.load_file(f"playlists/{song}")['artist'], "album": music_tag.load_file(f"playlists/{song}")['album'], "file_path": song} for song in all_songs]
 
     if filter == "title":
         songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['title']).lower() or query.lower() in str(song['file_path']).lower()]
