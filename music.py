@@ -116,12 +116,14 @@ async def search_songs(filter:str="title", query:str="None"):
     all_songs = all_songs.split("?")
     all_songs.pop(-1)
 
-    song_dicts = [{"title": music_tag.load_file(f"playlists/{song}")['title'], "artist": music_tag.load_file(f"playlists/{song}")['artist'], "file_path": song} for song in all_songs]
+    song_dicts = [{"title": music_tag.load_file(f"playlists/{song}")['title'], "artist": music_tag.load_file(f"playlists/{song}")['artist'], "artist": music_tag.load_file(f"playlists/{song}")['album'], "file_path": song} for song in all_songs]
 
     if filter == "title":
         songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['title']).lower() or query.lower() in str(song['file_path']).lower()]
     elif filter == "artist":
         songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['artist']).lower()]
+    elif filter == "album":
+        songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['album']).lower()]
 
     return(songs)
 
@@ -609,7 +611,8 @@ async def playlists(ctx, *, playlist=None):
 @client.hybrid_command()
 @app_commands.choices(filter=[
     app_commands.Choice(name='title', value="title"),
-    app_commands.Choice(name='artist', value="artist")
+    app_commands.Choice(name='artist', value="artist"),
+    app_commands.Choice(name='album', value='album')
 ])
 async def search(ctx, filter="title", query=None):
     class QueueButtons(discord.ui.View):
