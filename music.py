@@ -124,6 +124,8 @@ async def search_songs(filter:str="title", query:str="None"):
         songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['artist']).lower()]
     elif filter == "album":
         songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['album']).lower()]
+    elif filter == "title_artist":
+        songs = [song['file_path'] for song in song_dicts if query.lower() in f"{str(song['title']).lower()} {str(song['artist']).lower()}"]
 
     return(songs)
 
@@ -223,7 +225,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None, 
     if playlist == "master":
         music_files = ""
         for path, subdirs, files in os.walk(folder_path):
-            subdirs[:] = [d for d in subdirs if d != ".git"]
+            subdirs[:] = [d for d in subdirs if d != ".git" and d != "burnouttour"]
             for name in files:
                 if not name in music_files:
                     music_files += f'{os.path.join(path, name)}?'.removeprefix(folder_path)
@@ -434,7 +436,11 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
 
 
 @client.hybrid_command()
-async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attachment):
+@app_commands.choices(save_only=[
+    app_commands.Choice(name='true', value="true"),
+    app_commands.Choice(name='false', value="false")
+])
+async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attachment, save_only: str = "false"):
     await ctx.defer()
 
     channel_id = channel.id
@@ -460,15 +466,16 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
             await interaction.response.edit_message(content='bai bai', view=None)
     # endregion
 
-    channel = client.get_channel(channel_id)
+    if save_only != "false":
+        channel = client.get_channel(channel_id)
 
-    voice_client = await channel.connect()
-    await ctx.send(f"playing {file.filename} :D ill disconnect when its done", view=Buttons(timeout=None))
+        voice_client = await channel.connect()
+        await ctx.send(f"playing {file.filename} :D ill disconnect when its done", view=Buttons(timeout=None))
 
-    voice_client.play(discord.FFmpegPCMAudio(file_path))
-    await sleep_until_song_ends(ctx)
-    await voice_client.disconnect()
-    await ctx.send("bai bai")
+        voice_client.play(discord.FFmpegPCMAudio(file_path))
+        await sleep_until_song_ends(ctx)
+        await voice_client.disconnect()
+        await ctx.send("bai bai")
 
 
 
@@ -612,7 +619,8 @@ async def playlists(ctx, *, playlist=None):
 @app_commands.choices(filter=[
     app_commands.Choice(name='title', value="title"),
     app_commands.Choice(name='artist', value="artist"),
-    app_commands.Choice(name='album', value='album')
+    app_commands.Choice(name='album', value='album'),
+    app_commands.Choice(name='title + artist', value="title_artist")
 ])
 async def search(ctx, filter="title", query=None):
     class QueueButtons(discord.ui.View):
