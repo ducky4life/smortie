@@ -489,6 +489,16 @@ async def playartist(ctx, artist=None):
 
 
 
+@client.hybrid_command(description="imports all songs of an album")
+async def playalbum(ctx, album=None):
+
+    songs = await ac_search_songs(ctx, "album", album)
+    queue = "\n".join(songs)
+    await send_codeblock(ctx, queue)
+    await write_to_queue_file(ctx, "overwrite", queue)
+
+
+
 @client.hybrid_command(description="imports songs from spotify playlist")
 @app_commands.describe(url="wat link i import", importmode="overwrite the queue or append")
 @app_commands.choices(mode=[
