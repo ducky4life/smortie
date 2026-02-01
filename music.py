@@ -108,10 +108,12 @@ async def prettify_autocorrector(query:str, number:int=1, separator:str=" "):
 async def search_songs(filter:str="title", query:str="None"):
     all_songs = ""
     songs = []
+    distinct_songs = []
     query = query.strip("```").replace("\\", "/")
     for path, subdirs, files in os.walk(f"playlists"):
         for name in files:
-            if ".git" not in path:
+            if ".git" not in path and name not in distinct_songs:
+                distinct_songs.append(name)
                 all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"playlists").replace("\\", "/")
     all_songs = all_songs.split("?")
     all_songs.pop(-1)
