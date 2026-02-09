@@ -127,10 +127,13 @@ async def search_songs(filter:str="title", query:str="None"):
     elif filter == "album":
         songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['album']).lower()]
     elif filter == "title_artist":
-        query_list = query.split(",")
-        title = query_list[0]
-        artist = query_list[1]
-        songs = [song['file_path'] for song in song_dicts if title.lower() in str(song['title']).lower() and artist.lower() in str(song['artist']).lower()]
+        try:
+            query_list = query.split(",")
+            title = query_list[0]
+            artist = query_list[1]
+            songs = [song['file_path'] for song in song_dicts if (title.lower() in str(song['title']).lower() or title.lower() in str(song['file_path']).lower()) and artist.lower() in str(song['artist']).lower()]
+        except IndexError:
+            songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['title']).lower() or query.lower() in str(song['file_path']).lower()]
 
     return(songs)
 
