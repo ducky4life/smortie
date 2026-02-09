@@ -408,7 +408,7 @@ async def play24(ctx, *, channel: discord.VoiceChannel=None, file="sheep.mp3"):
 async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     channel_id = channel.id
     folder_path = f"playlists"
-    song = await ac_search_songs(ctx, "title", file)
+    song = await ac_search_songs(ctx, "title_artist", file)
     file_path = f"{folder_path}/{song[0]}"
     f = music_tag.load_file(file_path)
 
