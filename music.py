@@ -474,7 +474,7 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
             await interaction.response.edit_message(content='bai bai', view=None)
     # endregion
 
-    if save_only != "false":
+    if save_only != "true":
         channel = client.get_channel(channel_id)
 
         voice_client = await channel.connect()
