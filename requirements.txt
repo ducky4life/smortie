@@ -1,6 +1,6 @@
 flask
 pyflakes
-discord
+discord.py[voice]
 mutagen
 music_tag
 pynacl
