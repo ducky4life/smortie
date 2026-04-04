@@ -453,7 +453,7 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
 
     channel_id = channel.id
     folder_path = f"playlists/local"
-    file_path = f"{folder_path}/{file.filename}_{file.duration}"
+    file_path = f"{folder_path}/{file.filename}"
     if not os.path.exists("playlists/local"):
         os.makedirs("playlists/local")
     await file.save(file_path)
@@ -484,6 +484,8 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
         await sleep_until_song_ends(ctx)
         await voice_client.disconnect()
         await ctx.send("bai bai")
+    else:
+        await ctx.send(f"saved as {file.filename}")
 
 
 
