@@ -689,6 +689,19 @@ async def importqueue(ctx, *, queue:str=None):
     await write_to_queue_file(ctx, "overwrite", queue)
 
 
+@client.hybrid_command(aliases=['bulksearch'])
+@app_commands.describe(query="wat i nom")
+async def searchimport(ctx, *, query:str=None):
+    queue = ""
+    for song in query.split('\n'):
+        try:
+            queue = queue + (await search_songs("title", song))[0] + "\n"
+        except IndexError:
+            await ctx.send(f"{song} is not found")
+    await send_codeblock(queue)
+    await write_to_queue_file(ctx, "overwrite", queue)
+
+
 @client.hybrid_command(aliases=['append'])
 @app_commands.describe(queue="wat i nom")
 async def appendqueue(ctx, *, queue:str=None):
