@@ -698,7 +698,7 @@ async def searchimport(ctx, *, query:str=None):
             queue = queue + (await search_songs("title", song))[0] + "\n"
         except IndexError:
             await ctx.send(f"{song} is not found")
-    await send_codeblock(queue)
+    await send_codeblock(ctx, queue)
     await write_to_queue_file(ctx, "overwrite", queue)
 
 
