@@ -801,12 +801,12 @@ async def on_message(message: discord.Message):
 .    .
 v""")
 
-# @client.event
-# async def on_command_error(ctx, error):
-#     channel_id = 1131914463277240361
-#     channel = client.get_channel(channel_id)
-#     await channel.send(error)
-#     await channel.send(error.__traceback__)
+@client.event
+async def on_command_error(ctx, error):
+    channel_id = 1131914463277240361
+    channel = client.get_channel(channel_id)
+    await channel.send(error)
+    await channel.send(error.__traceback__)
 # endregion
 
 keep_alive.keep_alive()
