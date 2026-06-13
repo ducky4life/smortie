@@ -10,8 +10,9 @@ from mutagen.mp4 import MP4
 import random
 import music_tag
 from dotenv import load_dotenv
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+# import spotipy
+# from spotipy.oauth2 import SpotifyClientCredentials
+from spotify_scraper import SpotifyClient
 import yt_dlp
 from dyslexicloglog import Autocorrector
 
@@ -520,34 +521,44 @@ async def playalbum(ctx, album=None):
 ])
 async def playspotify(ctx, mode="playlist", url=None, importmode="overwrite"):
 
-    client_id = os.getenv("SPOTIFY_CLIENT_ID")
-    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+    # client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    # client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
     await ctx.defer()
     queue_list = []
-    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))
+    # sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))
 
     if mode == "playlist":
-        results = sp.playlist_tracks(url, limit=100)
-        tracks = results['items']
-        while results['next']:
-            results = sp.next(tracks)
-            tracks.extend(results['items'])
+        # results = sp.playlist_tracks(url, limit=100)
+        # tracks = results['items']
+        # while results['next']:
+        #     results = sp.next(tracks)
+        #     tracks.extend(results['items'])
+
+        with SpotifyClient() as client:
+            results = client.get_playlist(url, max_tracks=100)
+            tracks = results.tracks
+
+        for song in tracks:
+            track_name = song.track.name
+            search_result = await search_songs("title", track_name)
+            try:
+                queue_list.append(search_result[0])
+            except IndexError:
+                continue
 
     else:
-        results = sp.track(url)
-        tracks = [results]
+        # results = sp.track(url)
+        # tracks = [results]
 
-    for song in tracks:
-        if mode == "playlist":
-            track_name = song['track']['name']
-        else:
-            track_name = song['name']
-        search_result = await search_songs("title", track_name)
-        try:
-            queue_list.append(search_result[0])
-        except IndexError:
-            continue
+        with SpotifyClient() as client:
+            results = client.get_track(url)
+            track_name = results.name
+            search_result = await search_songs("title", track_name)
+            try:
+                queue_list.append(search_result[0])
+            except IndexError:
+                pass
             
     queue = "\n".join(queue_list)
     
@@ -690,16 +701,34 @@ async def importqueue(ctx, *, queue:str=None):
 
 
 @client.hybrid_command(aliases=['bulksearch'])
+@app_commands.choices(mode=[
+    app_commands.Choice(name='overwrite', value="overwrite"),
+    app_commands.Choice(name='append', value="append"),
+])
 @app_commands.describe(query="wat i nom")
-async def searchimport(ctx, *, query:str=None):
+async def searchimport(ctx, *, query:str=None, mode:str="overwrite", separator:str="\n"):
+    class QueueButtons(discord.ui.View):
+        @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
+        async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await interaction.response.edit_message(content="queue go bai bai", view=None)
+        @discord.ui.button(label='import', style=discord.ButtonStyle.secondary)
+        async def importqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await edit_queue_file("overwrite", interaction.message.content)
+            await interaction.response.send_message("i tak the q, n eat it")
+        @discord.ui.button(label='append', style=discord.ButtonStyle.secondary)
+        async def appendqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await edit_queue_file("append", interaction.message.content)
+            await interaction.response.send_message("i tak the q, n eat it")
+
     queue = ""
-    for song in query.split('\n'):
+    for song in query.split(separator):
         try:
-            queue = queue + (await search_songs("title", song))[0] + "\n"
+            queue = queue + (await search_songs("title", song))[0] + separator
         except IndexError:
             await ctx.send(f"{song} is not found")
-    await send_codeblock(ctx, queue)
-    await write_to_queue_file(ctx, "overwrite", queue)
+
+    await send_codeblock(ctx, queue, view=QueueButtons(timeout=None))
+    await write_to_queue_file(ctx, mode, queue)
 
 
 @client.hybrid_command(aliases=['append'])
@@ -772,12 +801,12 @@ async def on_message(message: discord.Message):
 .    .
 v""")
 
-@client.event
-async def on_command_error(ctx, error):
-    channel_id = 1131914463277240361
-    channel = client.get_channel(channel_id)
-    await channel.send(error)
-    await channel.send(error.__traceback__)
+# @client.event
+# async def on_command_error(ctx, error):
+#     channel_id = 1131914463277240361
+#     channel = client.get_channel(channel_id)
+#     await channel.send(error)
+#     await channel.send(error.__traceback__)
 # endregion
 
 keep_alive.keep_alive()

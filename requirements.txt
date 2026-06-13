@@ -6,6 +6,6 @@ music_tag
 pynacl
 python-dotenv
 waitress
-spotipy
 yt_dlp
 DyslexicLogLog
+spotifyscraper
