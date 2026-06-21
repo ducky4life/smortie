@@ -72,9 +72,17 @@ class Buttons(discord.ui.View):
         self.voice_client = ctx.guild.voice_client
         super().__init__(timeout=timeout)
     @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
-    async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-        self.voice_client.pause()
-        await interaction.response.send_message('ok i wait')
+    async def toggle_pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        if not self.voice_client.is_paused():
+            button.label = 'resume'
+            button.style = discord.ButtonStyle.success
+            self.voice_client.pause()
+            await interaction.response.send_message('ok i wait')
+        else:
+            button.label = 'pause'
+            button.style = discord.ButtonStyle.blurple
+            self.voice_client.resume()
+            await interaction.response.send_message('yay i sing')
     @discord.ui.button(label='resume', style=discord.ButtonStyle.success)
     async def resume(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         self.voice_client.resume()
@@ -381,7 +389,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None, 
 
 
         voice_client.play(discord.FFmpegPCMAudio(file_to_play))
-        await ctx.send(f"playing {f['title']} - {f['artist']}", silent=True, view=Buttons(timeout=None))
+        await ctx.send(f"playing {f['title']} - {f['artist']}", silent=True, view=Buttons(ctx, timeout=None))
         if i < len(music_files)-1:
             popped = queue_list.pop(0)
             if loop_playlist:
@@ -441,7 +449,7 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     channel = client.get_channel(channel_id)
 
     voice_client = await channel.connect()
-    await ctx.send(f"playing {f['title']} :D ill disconnect when its done", view=Buttons(timeout=None))
+    await ctx.send(f"playing {f['title']} :D ill disconnect when its done", view=Buttons(ctx, timeout=None))
 
     voice_client.play(discord.FFmpegPCMAudio(file_path))
     await sleep_until_song_ends(ctx)
@@ -469,7 +477,7 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
         channel = client.get_channel(channel_id)
 
         voice_client = await channel.connect()
-        await ctx.send(f"playing {file.filename} :D ill disconnect when its done", view=Buttons(timeout=None))
+        await ctx.send(f"playing {file.filename} :D ill disconnect when its done", view=Buttons(ctx, timeout=None))
 
         voice_client.play(discord.FFmpegPCMAudio(file_path))
         await sleep_until_song_ends(ctx)
