@@ -98,6 +98,7 @@ class Buttons(discord.ui.View):
     async def send_lyrics(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         lyrics = await get_track_lyrics(self.file_path)
         await send_codeblock(self.ctx, lyrics, view=DeleteButton(timeout=None))
+        await interaction.response.edit_message(view=self)
     @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
     async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         await self.voice_client.disconnect()
