@@ -77,16 +77,14 @@ class Buttons(discord.ui.View):
             button.label = 'resume'
             button.style = discord.ButtonStyle.success
             self.voice_client.pause()
+            await interaction.response.edit_message(view=self)
             await interaction.response.send_message('ok i wait')
         else:
             button.label = 'pause'
             button.style = discord.ButtonStyle.blurple
             self.voice_client.resume()
+            await interaction.response.edit_message(view=self)
             await interaction.response.send_message('yay i sing')
-    @discord.ui.button(label='resume', style=discord.ButtonStyle.success)
-    async def resume(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-        self.voice_client.resume()
-        await interaction.response.send_message('yay i sing')
     @discord.ui.button(label='skip', style=discord.ButtonStyle.secondary)
     async def skip(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         asyncio.current_task.cancel()
