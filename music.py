@@ -146,6 +146,11 @@ async def get_track_duration(file, full_file_path):
         time = MP4(full_file_path).info.length + 3
     return(time)
 
+async def get_track_lyrics(file_path):
+    lyrics = music_tag.load_file(file_path)['lyrics']
+    if lyrics != None:
+        return str(lyrics)
+    return ""
 
 async def sleep_until_song_ends(ctx):
     voice_client = ctx.guild.voice_client
@@ -352,6 +357,10 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None, 
             async def displayqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 msg = await view_queue_file()
                 await interaction.response.send_message(f"```{msg[:1993]}```", view=QueueButtons(timeout=None))
+            @discord.ui.button(label='lyrics', style=discord.ButtonStyle.gray)
+            async def send_lyrics(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+                msg = await get_track_lyrics(file_to_load)
+                await interaction.response.send_message(f"```{msg[:1993]}```")
             @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
             async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
                 await voice_client.disconnect()
@@ -426,6 +435,10 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
         async def resume(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
             voice_client.resume()
             await interaction.response.send_message('yay i sing')
+        @discord.ui.button(label='lyrics', style=discord.ButtonStyle.gray)
+        async def send_lyrics(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            msg = await get_track_lyrics(file_path)
+            await interaction.response.send_message(f"```{msg[:1993]}```")
         @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
         async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
             await voice_client.disconnect()
@@ -698,6 +711,19 @@ async def queue(ctx):
 @app_commands.describe(queue="wat i nom")
 async def importqueue(ctx, *, queue:str=None):
     await write_to_queue_file(ctx, "overwrite", queue)
+
+
+@client.hybrid_command(aliases=['lyrics'])
+@app_commands.describe(song="wat i nom")
+async def get_lyrics(ctx, *, song: str = None):
+    song_path = await search_songs("title_artist", song)
+    lyrics = await get_track_lyrics(song_path[0])
+
+    class LyricsButtons(discord.ui.View):
+        @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
+        async def deletelyrics(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+            await interaction.response.edit_message(content="lyrics go bai bai", view=None)
+    await send_codeblock(ctx, lyrics, view=LyricsButtons(timeout=None))
 
 
 @client.hybrid_command(aliases=['bulksearch'])
