@@ -47,6 +47,52 @@ async def on_ready():
 # endregion
 
 
+# region button classes
+class DeleteButton(discord.ui.View):
+    @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
+    async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        await interaction.response.edit_message(content="message go bai bai", view=None)
+
+class QueueButtons(discord.ui.View):
+    @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
+    async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        await interaction.response.edit_message(content="queue go bai bai", view=None)
+    @discord.ui.button(label='import', style=discord.ButtonStyle.secondary)
+    async def importqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        await edit_queue_file("overwrite", interaction.message.content)
+        await interaction.response.send_message("i tak the q, n eat it")
+    @discord.ui.button(label='append', style=discord.ButtonStyle.secondary)
+    async def appendqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        await edit_queue_file("append", interaction.message.content)
+        await interaction.response.send_message("i tak the q, n eat it")
+
+class Buttons(discord.ui.View):
+    def __init__(self, ctx, *, timeout = 180):
+        self.ctx = ctx
+        self.voice_client = ctx.guild.voice_client
+        super().__init__(timeout=timeout)
+    @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
+    async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        self.voice_client.pause()
+        await interaction.response.send_message('ok i wait')
+    @discord.ui.button(label='resume', style=discord.ButtonStyle.success)
+    async def resume(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        self.voice_client.resume()
+        await interaction.response.send_message('yay i sing')
+    @discord.ui.button(label='skip', style=discord.ButtonStyle.secondary)
+    async def skip(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        asyncio.current_task.cancel()
+        await interaction.response.edit_message(content='i sing next song', view=None)
+    @discord.ui.button(label='queue', style=discord.ButtonStyle.secondary)
+    async def displayqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        msg = await view_queue_file()
+        await interaction.response.send_message(f"```{msg[:1993]}```", view=QueueButtons(timeout=None))
+    @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
+    async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        await self.voice_client.disconnect()
+        await interaction.response.edit_message(content='bai bai', view=None)
+# endregion
+
 # region helper functions
 async def view_queue_file():
     with open("queue.txt", encoding="utf-8") as queue_file:
@@ -334,39 +380,6 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None, 
         time = await get_track_duration(music_files[i], full_file_path)
 
 
-    # region buttons
-        class QueueButtons(discord.ui.View):
-            @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
-            async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-                await interaction.response.edit_message(content="queue go bai bai", view=None)
-
-        class Buttons(discord.ui.View):
-            @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
-            async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-                voice_client.pause()
-                await interaction.response.send_message('ok i wait')
-            @discord.ui.button(label='resume', style=discord.ButtonStyle.success)
-            async def resume(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-                voice_client.resume()
-                await interaction.response.send_message('yay i sing')
-            @discord.ui.button(label='skip', style=discord.ButtonStyle.secondary)
-            async def skip(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-                task.cancel()
-                await interaction.response.edit_message(content='i sing next song', view=None)
-            @discord.ui.button(label='queue', style=discord.ButtonStyle.secondary)
-            async def displayqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-                msg = await view_queue_file()
-                await interaction.response.send_message(f"```{msg[:1993]}```", view=QueueButtons(timeout=None))
-            @discord.ui.button(label='lyrics', style=discord.ButtonStyle.gray)
-            async def send_lyrics(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-                msg = await get_track_lyrics(file_to_load)
-                await interaction.response.send_message(f"```{msg[:1993]}```")
-            @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
-            async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-                await voice_client.disconnect()
-                await interaction.response.edit_message(content='bai bai', view=None)
-    # endregion
-
         voice_client.play(discord.FFmpegPCMAudio(file_to_play))
         await ctx.send(f"playing {f['title']} - {f['artist']}", silent=True, view=Buttons(timeout=None))
         if i < len(music_files)-1:
@@ -425,26 +438,6 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     file_path = f"{folder_path}/{song[0]}"
     f = music_tag.load_file(file_path)
 
-    # region buttons
-    class Buttons(discord.ui.View):
-        @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
-        async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            voice_client.pause()
-            await interaction.response.send_message('ok i wait')
-        @discord.ui.button(label='resume', style=discord.ButtonStyle.success)
-        async def resume(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            voice_client.resume()
-            await interaction.response.send_message('yay i sing')
-        @discord.ui.button(label='lyrics', style=discord.ButtonStyle.gray)
-        async def send_lyrics(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            msg = await get_track_lyrics(file_path)
-            await interaction.response.send_message(f"```{msg[:1993]}```")
-        @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
-        async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await voice_client.disconnect()
-            await interaction.response.edit_message(content='bai bai', view=None)
-    # endregion
-
     channel = client.get_channel(channel_id)
 
     voice_client = await channel.connect()
@@ -471,22 +464,6 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
     if not os.path.exists("playlists/local"):
         os.makedirs("playlists/local")
     await file.save(file_path)
-
-    # region buttons
-    class Buttons(discord.ui.View):
-        @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
-        async def pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            voice_client.pause()
-            await interaction.response.send_message('ok i wait')
-        @discord.ui.button(label='resume', style=discord.ButtonStyle.success)
-        async def resume(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            voice_client.resume()
-            await interaction.response.send_message('yay i sing')
-        @discord.ui.button(label='stop', style=discord.ButtonStyle.red)
-        async def stop(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await voice_client.disconnect()
-            await interaction.response.edit_message(content='bai bai', view=None)
-    # endregion
 
     if save_only != "true":
         channel = client.get_channel(channel_id)
@@ -574,19 +551,6 @@ async def playspotify(ctx, mode="playlist", url=None, importmode="overwrite"):
                 pass
             
     queue = "\n".join(queue_list)
-    
-    class QueueButtons(discord.ui.View):
-        @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
-        async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await interaction.response.edit_message(content="queue go bai bai", view=None)
-        @discord.ui.button(label='import', style=discord.ButtonStyle.secondary)
-        async def importqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await edit_queue_file("overwrite", interaction.message.content)
-            await interaction.response.send_message("i tak the q, n eat it")
-        @discord.ui.button(label='append', style=discord.ButtonStyle.secondary)
-        async def appendqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await edit_queue_file("append", interaction.message.content)
-            await interaction.response.send_message("i tak the q, n eat it")
             
     await send_codeblock(ctx, queue, view=QueueButtons(timeout=None))
     await write_to_queue_file(ctx, importmode, queue)
@@ -667,18 +631,6 @@ async def playlists(ctx, *, playlist=None):
     app_commands.Choice(name='title + artist', value="title_artist")
 ])
 async def search(ctx, filter="title", query=None):
-    class QueueButtons(discord.ui.View):
-        @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
-        async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await interaction.response.edit_message(content="queue go bai bai", view=None)
-        @discord.ui.button(label='import', style=discord.ButtonStyle.secondary)
-        async def importqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await edit_queue_file("overwrite", interaction.message.content)
-            await interaction.response.send_message("i tak the q, n eat it")
-        @discord.ui.button(label='append', style=discord.ButtonStyle.secondary)
-        async def appendqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await edit_queue_file("append", interaction.message.content)
-            await interaction.response.send_message("i tak the q, n eat it")
 
     songs = await ac_search_songs(ctx, filter, query)
 
@@ -689,18 +641,6 @@ async def search(ctx, filter="title", query=None):
 
 @client.hybrid_command(aliases=['q'])
 async def queue(ctx):
-    class QueueButtons(discord.ui.View):
-        @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
-        async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await interaction.response.edit_message(content="queue go bai bai", view=None)
-        @discord.ui.button(label='import', style=discord.ButtonStyle.secondary)
-        async def importqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await edit_queue_file("overwrite", interaction.message.content)
-            await interaction.response.send_message("i tak the q, n eat it")
-        @discord.ui.button(label='append', style=discord.ButtonStyle.secondary)
-        async def appendqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await edit_queue_file("append", interaction.message.content)
-            await interaction.response.send_message("i tak the q, n eat it")
 
     msg = await view_queue_file()
     await send_codeblock(ctx, msg, view=QueueButtons(timeout=None))
@@ -719,11 +659,7 @@ async def get_lyrics(ctx, *, song: str = None):
     song_path = await search_songs("title_artist", song)
     lyrics = await get_track_lyrics(song_path[0])
 
-    class LyricsButtons(discord.ui.View):
-        @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
-        async def deletelyrics(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await interaction.response.edit_message(content="lyrics go bai bai", view=None)
-    await send_codeblock(ctx, lyrics, view=LyricsButtons(timeout=None))
+    await send_codeblock(ctx, lyrics, view=DeleteButton(timeout=None))
 
 
 @client.hybrid_command(aliases=['bulksearch'])
@@ -733,18 +669,6 @@ async def get_lyrics(ctx, *, song: str = None):
 ])
 @app_commands.describe(query="wat i nom")
 async def searchimport(ctx, *, query:str=None, mode:str="overwrite", separator:str="\n"):
-    class QueueButtons(discord.ui.View):
-        @discord.ui.button(label='delete', style=discord.ButtonStyle.red)
-        async def deletequeue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await interaction.response.edit_message(content="queue go bai bai", view=None)
-        @discord.ui.button(label='import', style=discord.ButtonStyle.secondary)
-        async def importqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await edit_queue_file("overwrite", interaction.message.content)
-            await interaction.response.send_message("i tak the q, n eat it")
-        @discord.ui.button(label='append', style=discord.ButtonStyle.secondary)
-        async def appendqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-            await edit_queue_file("append", interaction.message.content)
-            await interaction.response.send_message("i tak the q, n eat it")
 
     queue = ""
     for song in query.split(separator):
