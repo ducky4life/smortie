@@ -543,11 +543,16 @@ async def playspotify(ctx, mode="playlist", url=None, importmode="overwrite"):
 
         for song in tracks:
             track_name = song.track.name
-            search_result = await search_songs("title", track_name)
+            track_artist = song.track.artists[0].name
+            search_result = await search_songs("title_artist", track_name+","+track_artist)
             try:
                 queue_list.append(search_result[0])
             except IndexError:
-                continue
+                search_result = await search_songs("title", track_name)
+                try:
+                    queue_list.append(search_result[0])
+                except IndexError:
+                    continue
 
     else:
         # results = sp.track(url)
@@ -556,11 +561,16 @@ async def playspotify(ctx, mode="playlist", url=None, importmode="overwrite"):
         with SpotifyClient() as client:
             results = client.get_track(url)
             track_name = results.name
-            search_result = await search_songs("title", track_name)
+            track_artist = results.artists[0].name
+            search_result = await search_songs("title_artist", track_name+","+track_artist)
             try:
                 queue_list.append(search_result[0])
             except IndexError:
-                pass
+                search_result = await search_songs("title", track_name)
+                try:
+                    queue_list.append(search_result[0])
+                except IndexError:
+                    pass
             
     queue = "\n".join(queue_list)
             
