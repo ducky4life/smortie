@@ -165,26 +165,50 @@ async def prettify_autocorrector(query:str, number:int=1, separator:str=" "):
 
 
 async def search_songs(filter:str="title", query:str="None"):
-    all_songs = ""
+    all_songs = []
     songs = []
     distinct_songs = []
     query = query.strip("```").replace("\\", "/")
-    for path, subdirs, files in os.walk(f"playlists"):
+    for path, subdirs, files in os.walk("playlists"):
+        if ".git" in path:
+            continue
         for name in files:
-            if ".git" not in path and name not in distinct_songs:
+            if name not in distinct_songs:
                 distinct_songs.append(name)
-                all_songs += f'{os.path.join(path, name)}?'.removeprefix(f"playlists").replace("\\", "/")
-    all_songs = all_songs.split("?")
-    all_songs.pop(-1)
+                rel_path = os.path.join(path, name).removeprefix("playlists").replace("\\", "/")
+                all_songs.append(rel_path)
 
-    song_dicts = [{"title": music_tag.load_file(f"playlists/{song}")['title'], "artist": music_tag.load_file(f"playlists/{song}")['artist'], "album": music_tag.load_file(f"playlists/{song}")['album'], "file_path": song} for song in all_songs]
+    def safe_tag(tags, key):
+        try:
+            value = tags[key]
+            return "" if value is None else str(value)
+        except Exception:
+            return ""
+
+    song_dicts = []
+    for song in all_songs:
+        file_path = f"playlists/{song}"
+        try:
+            tags = music_tag.load_file(file_path)
+        except Exception as e:
+            tags = None
+
+        song_dicts.append({
+            "title": safe_tag(tags, "title"),
+            "artist": safe_tag(tags, "artist"),
+            "album": safe_tag(tags, "album"),
+            "tracknumber": int(safe_tag(tags, "tracknumber").split("/")[0]) if safe_tag(tags, "tracknumber") != "" else 1,
+            "file_path": song
+        })
 
     if filter == "title":
         songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['title']).lower() or query.lower() in str(song['file_path']).lower()]
     elif filter == "artist":
         songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['artist']).lower()]
     elif filter == "album":
-        songs = [song['file_path'] for song in song_dicts if query.lower() in str(song['album']).lower()]
+        songs_meta = [song for song in song_dicts if query.lower() in str(song['album']).lower()]
+        songs_meta.sort(key=lambda song: song['tracknumber'])
+        songs = [song['file_path'] for song in songs_meta]
     elif filter == "title_artist":
         try:
             query_list = query.split(",")
