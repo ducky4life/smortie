@@ -691,6 +691,14 @@ async def queue(ctx):
     msg = await view_queue_file()
     await send_codeblock(ctx, msg, view=QueueButtons(timeout=None))
 
+@client.hybrid_command()
+async def get_file(ctx, filename=None):
+
+    songs = await ac_search_songs(ctx, "title", filename)
+    file = discord.File("playlists" + songs[0])
+
+    await ctx.send("ok", file=file)
+
 
 
 @client.hybrid_command(aliases=['import'])
@@ -797,12 +805,12 @@ async def on_message(message: discord.Message):
 .    .
 v""")
 
-@client.event
-async def on_command_error(ctx, error):
-    channel_id = 1131914463277240361
-    channel = client.get_channel(channel_id)
-    await channel.send(error)
-    await channel.send(error.__traceback__)
+# @client.event
+# async def on_command_error(ctx, error):
+#     channel_id = 1131914463277240361
+#     channel = client.get_channel(channel_id)
+#     await channel.send(error)
+#     await channel.send(error.__traceback__)
 # endregion
 
 keep_alive.keep_alive()
