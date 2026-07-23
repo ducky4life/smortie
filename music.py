@@ -162,7 +162,13 @@ async def prettify_autocorrector(query:str, number:int=1, separator:str=" "):
         msg += f'`{key}`: {" ".join(output)}\n'
     return msg
 
-
+async def autocorrect_sentence(query:str="None"):
+    word_list = query.split(" ")
+    results = []
+    for word in word_list:
+        ac_word = (await autocorrect(word, 1))[query][0]
+        results.append(ac_word)
+    return str(" ".join(results))
 
 async def search_songs(filter:str="title", query:str="None"):
     all_songs = []
@@ -245,8 +251,7 @@ async def ac_search_songs(ctx, filter:str="title", query:str="None"):
     songs = await search_songs(filter, query)
 
     if songs == []:
-        ac_query = await autocorrector(query, 1)
-        ac_word = ac_query[query][0]
+        ac_word = await autocorrect_sentence(query)
         await ctx.send(f"perhaps you meant {ac_word}?")
         songs = await search_songs(filter, ac_word)
     
