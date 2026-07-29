@@ -71,7 +71,7 @@ class Buttons(discord.ui.View):
         self.ctx = ctx
         self.voice_client = ctx.guild.voice_client
         self.file_path = file_path
-        self.task = asyncio.current_task
+        self.task = asyncio.current_task()
         super().__init__(timeout=timeout)
     @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
     async def toggle_pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
