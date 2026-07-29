@@ -16,8 +16,8 @@ from spotify_scraper import SpotifyClient
 import yt_dlp
 from dyslexicloglog import Autocorrector
 
-intents = discord.Intents.all()
-intents.members = True
+intents = discord.Intents.default()
+intents.message_content = True
 
 load_dotenv()
 
@@ -71,6 +71,7 @@ class Buttons(discord.ui.View):
         self.ctx = ctx
         self.voice_client = ctx.guild.voice_client
         self.file_path = file_path
+        self.task = asyncio.current_task
         super().__init__(timeout=timeout)
     @discord.ui.button(label='pause', style=discord.ButtonStyle.blurple)
     async def toggle_pause(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
@@ -88,7 +89,7 @@ class Buttons(discord.ui.View):
             await interaction.response.send_message('yay i sing')
     @discord.ui.button(label='skip', style=discord.ButtonStyle.secondary)
     async def skip(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-        asyncio.current_task.cancel()
+        self.task.cancel()
         await interaction.response.edit_message(content='i sing next song', view=None)
     @discord.ui.button(label='queue', style=discord.ButtonStyle.secondary)
     async def displayqueue(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
