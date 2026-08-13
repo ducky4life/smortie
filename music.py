@@ -236,7 +236,8 @@ async def get_track_duration(file, full_file_path):
     return(time)
 
 async def get_track_lyrics(file_path):
-    lyrics = music_tag.load_file(file_path)['lyrics']
+    full_file_path = "playlists" + file_path
+    lyrics = music_tag.load_file(full_file_path)['lyrics']
     if lyrics != None:
         return str(lyrics)
     return ""
@@ -616,9 +617,17 @@ async def playyoutube(ctx, url=None):
         await ctx.defer()
         ydl_opts = {
             'format': 'bestaudio/best',
+            'writesubtitles': 'true',
+            'writethumbnail': 'true',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
+            }, {
+                'key': 'EmbedThumbnail',
+                'already_have_thumbnail': False,
+            }, {
+                'key': 'FFmpegMetadata',
+                'add_metadata': True,
             }],
             'outtmpl': 'playlists/local/%(title)s.%(ext)s'
         }
