@@ -6,3 +6,4 @@ queue.txt
 .cache
 /playlists/local/*
 /playlists/.git
+playlists
