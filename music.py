@@ -32,6 +32,9 @@ if bot_prefix == "smort" and codespace != "docker":
 else:
     token = os.getenv("ROBO_TOKEN")
 
+if not os.path.exists("playlists"):
+    os.makedirs("playlists")
+
 client = commands.Bot(
     command_prefix=[f"!{bot_prefix} ", f"!{bot_prefix} "],
     intents=intents)
