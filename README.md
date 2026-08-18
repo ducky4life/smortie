@@ -16,8 +16,6 @@ documentation? mmmmmmmmmm one day maybe, just do the token stuff in music.py, an
 
 supports playing 24/7, from a playlist, singular song, shuffling, master playlist with all songs in all playlists, and more that I don't remember.
 
-clone using `git clone --depth=1 https://github.com/ducky4life/smortie.git`
-
 contact me at ducky4life@duck.com
 
 ### features
