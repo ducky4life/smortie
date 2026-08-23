@@ -16,6 +16,8 @@ COPY /playlists /playlists
 
 COPY music.py keep_alive.py .env /
 
+RUN pip install -U yt_dlp
+
 WORKDIR /
 
 CMD [ "python", "music.py" ]
