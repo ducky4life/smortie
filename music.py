@@ -21,7 +21,7 @@ intents.message_content = True
 
 load_dotenv()
 
-bot_prefix = "robo"
+bot_prefix = "smort"
 codespace = "docker"
 
 if os.getenv("WORKSPACE") == "actions":
