@@ -21,7 +21,7 @@ intents.message_content = True
 
 load_dotenv()
 
-bot_prefix = "smort"
+bot_prefix = "robo"
 codespace = "docker"
 
 if os.getenv("WORKSPACE") == "actions":
@@ -170,7 +170,7 @@ async def autocorrect_sentence(query:str="None"):
     word_list = query.split(" ")
     results = []
     for word in word_list:
-        ac_word = (await autocorrect(word, 1))[query][0]
+        ac_word = (await autocorrector(word, 1))[query][0]
         results.append(ac_word)
     return str(" ".join(results))
 
@@ -823,12 +823,12 @@ async def on_message(message: discord.Message):
 .    .
 v""")
 
-# @client.event
-# async def on_command_error(ctx, error):
-#     channel_id = 1131914463277240361
-#     channel = client.get_channel(channel_id)
-#     await channel.send(error)
-#     await channel.send(error.__traceback__)
+@client.event
+async def on_command_error(ctx, error):
+    channel_id = 1131914463277240361
+    channel = client.get_channel(channel_id)
+    await channel.send(error)
+    await channel.send(error.__traceback__)
 # endregion
 
 keep_alive.keep_alive()
