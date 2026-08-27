@@ -21,6 +21,7 @@ load_dotenv()
 
 bot_prefix = "smort"
 codespace = "docker"
+song_folder = "playlists"
 
 if os.getenv("WORKSPACE") == "actions":
     codespace = os.getenv('WORKSPACE')
@@ -31,8 +32,11 @@ if codespace != "docker":
 else:
     token = os.getenv("ROBO_TOKEN")
 
-if not os.path.exists("playlists"):
-    os.makedirs("playlists")
+if not os.path.exists(song_folder):
+    os.makedirs(song_folder)
+
+if not os.path.exists(song_folder + "/local"):
+    os.makedirs(song_folder + "/local")
 
 client = commands.Bot(
     command_prefix=[f"!{bot_prefix} "],
@@ -454,42 +458,40 @@ async def play24(ctx, *, channel: discord.VoiceChannel=None, file="sheep.mp3"):
     channel_id = 1132046013360779434
     if channel != None:
         channel_id = channel.id
-    folder_path = f"playlists"
+
     song = await ac_search_songs(ctx, "title", file)
-    file_path = f"{folder_path}/{song[0]}"
+    file_path = f"{song_folder}/{song[0]}"
 
-    time = await get_track_duration(song[0], file_path)
-
-    channel = client.get_channel(channel_id)
-
-    voice_client = await channel.connect()
     await ctx.send(f"playing {song[0]} 24/7. please disconnect me from the voice channel if you want to play something else :D")
 
     while True:
-        voice_client.play(discord.FFmpegPCMAudio(file_path))
-        await asyncio.sleep(time)
-        voice_client.stop()
+        await play_song(ctx, channel_id, file_path)
 
+async def play_song(ctx, channel_id: int, abs_song_path: str, disconnect: bool = False):
+    channel = client.get_channel(channel_id)
+    voice_client: discord.VoiceClient = ctx.guild.voice_client
 
+    if not voice_client.is_connected():
+        voice_client = await channel.connect()
+
+    voice_client.play(discord.FFmpegPCMAudio(abs_song_path))
+    await sleep_until_song_ends(ctx)
+    await voice_client.stop()
+
+    if disconnect:
+        await voice_client.disconnect()
+        await ctx.send("bai bai")
 
 @client.hybrid_command(description="plays a file once")
 async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     channel_id = channel.id
-    folder_path = f"playlists"
     song = await ac_search_songs(ctx, "title_artist", file)
-    file_path = f"{folder_path}/{song[0]}"
+
+    file_path = f"{song_folder}/{song[0]}"
     f = music_tag.load_file(file_path)
 
-    channel = client.get_channel(channel_id)
-
-    voice_client = await channel.connect()
     await ctx.send(f"playing {f['title']} :D ill disconnect when its done", view=Buttons(ctx, file_path, timeout=None))
-
-    voice_client.play(discord.FFmpegPCMAudio(file_path))
-    await sleep_until_song_ends(ctx)
-    await voice_client.disconnect()
-    await ctx.send("bai bai")
-
+    await play_song(ctx, channel_id, file_path, True)
 
 
 @client.hybrid_command()
@@ -501,22 +503,14 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
     await ctx.defer()
 
     channel_id = channel.id
-    folder_path = f"playlists/local"
-    file_path = f"{folder_path}/{file.filename}"
-    if not os.path.exists("playlists/local"):
-        os.makedirs("playlists/local")
+    file_path = f"{song_folder}/local/{file.filename}"
     await file.save(file_path)
 
     if save_only != "true":
-        channel = client.get_channel(channel_id)
 
-        voice_client = await channel.connect()
         await ctx.send(f"playing {file.filename} :D ill disconnect when its done", view=Buttons(ctx, f"/local/{file.filename}", timeout=None))
+        await play_song(ctx, channel_id, file_path, True)
 
-        voice_client.play(discord.FFmpegPCMAudio(file_path))
-        await sleep_until_song_ends(ctx)
-        await voice_client.disconnect()
-        await ctx.send("bai bai")
     else:
         await ctx.send(f"saved as {file.filename}")
 
@@ -553,19 +547,10 @@ async def playalbum(ctx, album=None):
 ])
 async def playspotify(ctx, mode="playlist", url=None, importmode="overwrite"):
 
-    # client_id = os.getenv("SPOTIFY_CLIENT_ID")
-    # client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
-
     await ctx.defer()
     queue_list = []
-    # sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))
 
     if mode == "playlist":
-        # results = sp.playlist_tracks(url, limit=100)
-        # tracks = results['items']
-        # while results['next']:
-        #     results = sp.next(tracks)
-        #     tracks.extend(results['items'])
 
         with SpotifyClient() as client:
             results = client.get_playlist(url, max_tracks=100)
@@ -585,8 +570,6 @@ async def playspotify(ctx, mode="playlist", url=None, importmode="overwrite"):
                     continue
 
     else:
-        # results = sp.track(url)
-        # tracks = [results]
 
         with SpotifyClient() as client:
             results = client.get_track(url)
