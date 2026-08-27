@@ -10,8 +10,6 @@ from mutagen.mp4 import MP4
 import random
 import music_tag
 from dotenv import load_dotenv
-# import spotipy
-# from spotipy.oauth2 import SpotifyClientCredentials
 from spotify_scraper import SpotifyClient
 import yt_dlp
 from dyslexicloglog import Autocorrector
@@ -26,8 +24,9 @@ codespace = "docker"
 
 if os.getenv("WORKSPACE") == "actions":
     codespace = os.getenv('WORKSPACE')
+    bot_prefix = "smort"
 
-if bot_prefix == "smort" and codespace != "docker":
+if codespace != "docker":
     token = os.getenv("SMORT_TOKEN")
 else:
     token = os.getenv("ROBO_TOKEN")
@@ -36,7 +35,7 @@ if not os.path.exists("playlists"):
     os.makedirs("playlists")
 
 client = commands.Bot(
-    command_prefix=[f"!{bot_prefix} ", f"!{bot_prefix} "],
+    command_prefix=[f"!{bot_prefix} "],
     intents=intents)
 
 ac = Autocorrector()
@@ -438,17 +437,14 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None, 
         task = asyncio.create_task(sleep_until_song_ends(ctx))
         try:
             await task
-            voice_client.stop()
-            i = i + 1
-            if i == len(music_files):
-                await voice_client.disconnect()
-                await ctx.send("bai bai")
         except asyncio.CancelledError:
-            voice_client.stop()
-            i = i + 1
-            if i == len(music_files):
-                await voice_client.disconnect()
-                await ctx.send("bai bai")
+            pass
+
+        voice_client.stop()
+        i = i + 1
+        if i == len(music_files):
+            await voice_client.disconnect()
+            await ctx.send("bai bai")
 
 
 
