@@ -471,7 +471,7 @@ async def play_song(ctx, channel_id: int, abs_song_path: str, disconnect: bool =
     channel = client.get_channel(channel_id)
     voice_client: discord.VoiceClient = ctx.guild.voice_client
 
-    if not voice_client.is_connected():
+    if voice_client == None or not voice_client.is_connected():
         voice_client = await channel.connect()
 
     voice_client.play(discord.FFmpegPCMAudio(abs_song_path))
