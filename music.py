@@ -50,6 +50,7 @@ async def on_ready():
     print('Roboduck is ready')
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="ITS SHAUN THE SHEEP!"))
     await client.tree.sync()
+    discord.opus.load_opus('/opt/homebrew/opt/opus/lib/libopus.dylib')
 # endregion
 
 
@@ -86,13 +87,13 @@ class Buttons(discord.ui.View):
             button.style = discord.ButtonStyle.success
             self.voice_client.pause()
             await interaction.response.edit_message(view=self)
-            await interaction.response.send_message('ok i wait')
+            await interaction.followup.send('ok i wait')
         else:
             button.label = 'pause'
             button.style = discord.ButtonStyle.blurple
             self.voice_client.resume()
             await interaction.response.edit_message(view=self)
-            await interaction.response.send_message('yay i sing')
+            await interaction.followup.send('yay i sing')
     @discord.ui.button(label='skip', style=discord.ButtonStyle.secondary)
     async def skip(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         self.task.cancel()
@@ -467,14 +468,19 @@ async def play24(ctx, *, channel: discord.VoiceChannel=None, file="sheep.mp3"):
     while True:
         await play_song(ctx, channel_id, file_path)
 
-async def play_song(ctx, channel_id: int, abs_song_path: str, disconnect: bool = False):
+async def play_song(ctx, channel_id: int, rel_song_path: str, disconnect: bool = False, message: str = ""):
     channel = client.get_channel(channel_id)
+    abs_song_path = song_folder + rel_song_path
     voice_client: discord.VoiceClient = ctx.guild.voice_client
 
     if voice_client == None or not voice_client.is_connected():
         voice_client = await channel.connect()
 
     voice_client.play(discord.FFmpegPCMAudio(abs_song_path))
+
+    if message != "":
+        await ctx.send(message, view=Buttons(ctx, rel_song_path, timeout=None))
+
     await sleep_until_song_ends(ctx)
     await voice_client.stop()
 
@@ -490,8 +496,8 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     file_path = f"{song_folder}/{song[0]}"
     f = music_tag.load_file(file_path)
 
-    await ctx.send(f"playing {f['title']} :D ill disconnect when its done", view=Buttons(ctx, file_path, timeout=None))
-    await play_song(ctx, channel_id, file_path, True)
+    await play_song(ctx, channel_id, song[0], True,
+        f"playing {f['title']} :D ill disconnect when its done")
 
 
 @client.hybrid_command()
@@ -508,8 +514,8 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
 
     if save_only != "true":
 
-        await ctx.send(f"playing {file.filename} :D ill disconnect when its done", view=Buttons(ctx, f"/local/{file.filename}", timeout=None))
-        await play_song(ctx, channel_id, file_path, True)
+        await play_song(ctx, channel_id, f"/local/{file.filename}", True,
+            f"playing {file.filename} :D ill disconnect when its done")
 
     else:
         await ctx.send(f"saved as {file.filename}")
