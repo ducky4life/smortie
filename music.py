@@ -511,13 +511,12 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     disconnect = True
 
     channel = client.get_channel(channel_id)
-    abs_song_path = song_folder + rel_song_path
     voice_client: discord.VoiceClient = ctx.guild.voice_client
 
     if voice_client == None or not voice_client.is_connected():
         voice_client = await channel.connect()
 
-    voice_client.play(discord.FFmpegPCMAudio(abs_song_path))
+    voice_client.play(discord.FFmpegPCMAudio(file_path))
 
     if message != "":
         await ctx.send(message, view=Buttons(ctx, rel_song_path, timeout=None))
