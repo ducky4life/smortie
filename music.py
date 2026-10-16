@@ -50,7 +50,7 @@ async def on_ready():
     print('Roboduck is ready')
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="ITS SHAUN THE SHEEP!"))
     await client.tree.sync()
-    discord.opus.load_opus('/opt/homebrew/opt/opus/lib/libopus.dylib')
+    # discord.opus.load_opus('/opt/homebrew/opt/opus/lib/libopus.dylib')
 # endregion
 
 
