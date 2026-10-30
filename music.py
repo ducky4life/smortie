@@ -466,17 +466,7 @@ async def play24(ctx, *, channel: discord.VoiceChannel=None, file="sheep.mp3"):
     await ctx.send(f"playing {song[0]} 24/7. please disconnect me from the voice channel if you want to play something else :D")
 
     while True:
-        channel = client.get_channel(channel_id)
-        abs_song_path = song_folder + file_path
-        voice_client: discord.VoiceClient = ctx.guild.voice_client
-
-        if voice_client == None or not voice_client.is_connected():
-            voice_client = await channel.connect()
-
-        voice_client.play(discord.FFmpegPCMAudio(abs_song_path))
-
-        await sleep_until_song_ends(ctx)
-        await voice_client.stop()
+        await play_song(ctx, channel_id, file_path)
 
 async def play_song(ctx, channel_id: int, rel_song_path: str, disconnect: bool = False, message: str = ""):
     channel = client.get_channel(channel_id)
@@ -492,7 +482,7 @@ async def play_song(ctx, channel_id: int, rel_song_path: str, disconnect: bool =
         await ctx.send(message, view=Buttons(ctx, rel_song_path, timeout=None))
 
     await sleep_until_song_ends(ctx)
-    await voice_client.stop()
+    voice_client.stop()
 
     if disconnect:
         await voice_client.disconnect()
@@ -506,27 +496,9 @@ async def playfile(ctx, channel: discord.VoiceChannel, *, file=None):
     file_path = f"{song_folder}/{song[0]}"
     f = music_tag.load_file(file_path)
 
-    rel_song_path = song[0]
-    message = f"playing {f['title']} :D ill disconnect when its done"
-    disconnect = True
+    await play_song(ctx, channel_id, song[0], True,
+        f"playing {f['title']} :D ill disconnect when its done")
 
-    channel = client.get_channel(channel_id)
-    voice_client: discord.VoiceClient = ctx.guild.voice_client
-
-    if voice_client == None or not voice_client.is_connected():
-        voice_client = await channel.connect()
-
-    voice_client.play(discord.FFmpegPCMAudio(file_path))
-
-    if message != "":
-        await ctx.send(message, view=Buttons(ctx, rel_song_path, timeout=None))
-
-    await sleep_until_song_ends(ctx)
-    await voice_client.stop()
-
-    if disconnect:
-        await voice_client.disconnect()
-        await ctx.send("bai bai")
 
 @client.hybrid_command()
 @app_commands.choices(save_only=[
@@ -542,28 +514,8 @@ async def playlocalfile(ctx, channel: discord.VoiceChannel, file: discord.Attach
 
     if save_only != "true":
 
-        rel_song_path = f"/local/{file.filename}"
-        disconnect = True
-        message = f"playing {file.filename} :D ill disconnect when its done"
-
-        channel = client.get_channel(channel_id)
-        abs_song_path = song_folder + rel_song_path
-        voice_client: discord.VoiceClient = ctx.guild.voice_client
-
-        if voice_client == None or not voice_client.is_connected():
-            voice_client = await channel.connect()
-
-        voice_client.play(discord.FFmpegPCMAudio(abs_song_path))
-
-        if message != "":
-            await ctx.send(message, view=Buttons(ctx, rel_song_path, timeout=None))
-
-        await sleep_until_song_ends(ctx)
-        await voice_client.stop()
-
-        if disconnect:
-            await voice_client.disconnect()
-            await ctx.send("bai bai")
+        await play_song(ctx, channel_id, f"/local/{file.filename}", True,
+            f"playing {file.filename} :D ill disconnect when its done")
 
     else:
         await ctx.send(f"saved as {file.filename}")
