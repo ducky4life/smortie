@@ -243,7 +243,7 @@ async def get_track_duration(file, full_file_path):
     return(time)
 
 async def get_track_lyrics(file_path):
-    full_file_path = "playlists" + file_path
+    full_file_path = song_folder + "/" + file_path
     lyrics = music_tag.load_file(full_file_path)['lyrics']
     if lyrics != None:
         return str(lyrics)
@@ -470,7 +470,7 @@ async def play24(ctx, *, channel: discord.VoiceChannel=None, file="sheep.mp3"):
 
 async def play_song(ctx, channel_id: int, rel_song_path: str, disconnect: bool = False, message: str = ""):
     channel = client.get_channel(channel_id)
-    abs_song_path = song_folder + rel_song_path
+    abs_song_path = song_folder + "/" + rel_song_path
     voice_client: discord.VoiceClient = ctx.guild.voice_client
 
     if voice_client == None or not voice_client.is_connected():
