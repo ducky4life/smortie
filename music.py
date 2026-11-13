@@ -448,7 +448,7 @@ async def play(ctx, channel: discord.VoiceChannel, playlist=None, shuffle=None, 
         voice_client.stop()
         i = i + 1
         if i == len(music_files):
-            await voice_client.disconnect()
+            await ctx.guild.voice_client.disconnect(force=True)
             await ctx.send("bai bai")
 
 
@@ -472,9 +472,9 @@ async def play_song(ctx, channel_id: int, rel_song_path: str, disconnect: bool =
     channel = client.get_channel(channel_id)
     abs_song_path = song_folder + "/" + rel_song_path
     voice_client: discord.VoiceClient = ctx.guild.voice_client
-
-    if voice_client == None or not voice_client.is_connected():
-        voice_client = await channel.connect()
+        
+    if voice_client is None or not voice_client.is_connected():
+        voice_client = await channel.connect(reconnect=False)
 
     voice_client.play(discord.FFmpegPCMAudio(abs_song_path))
 
@@ -485,7 +485,7 @@ async def play_song(ctx, channel_id: int, rel_song_path: str, disconnect: bool =
     voice_client.stop()
 
     if disconnect:
-        await voice_client.disconnect()
+        await ctx.guild.voice_client.disconnect(force=True)
         await ctx.send("bai bai")
 
 @client.hybrid_command(description="plays a file once")
@@ -747,7 +747,7 @@ async def appendqueue(ctx, *, queue:str=None):
 @client.hybrid_command()
 async def stop(ctx):
     voice_client = ctx.guild.voice_client
-    await voice_client.disconnect()
+    await voice_client.disconnect(force=True)
     await ctx.send("bai bai")
 
 @client.hybrid_command()
