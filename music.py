@@ -16,6 +16,8 @@ from dyslexicloglog import Autocorrector
 
 intents = discord.Intents.default()
 intents.message_content = True
+import davey
+print(davey.__version__)
 
 load_dotenv()
 
